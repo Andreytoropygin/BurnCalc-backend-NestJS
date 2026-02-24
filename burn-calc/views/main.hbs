@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+{{> head}}
+<body>
+    {{> header}}
+    <main class="main-content">
+        <div class="container">
+            <div class="search-container">
+                <form action="/burn-calc" method="POST">
+                    <input type="text" class="search-input" name="query" placeholder="Введите запрос" value="{{query}}">
+                    <button type="submit" class="search-input-button">🔎</button>
+                </form>
+            </div>
+            <div class="compounds-grid">
+                {{#each compounds}}
+                    <!-- Карточка товара -->
+                    <div class="compound-card">
+                        <div class="compound-image">
+                            <img src="/images/{{this.image_file_name}}" alt="Модель молекулы">
+                        </div>
+                        <p class="compound-title">{{this.title}}</p>
+                        <p class="compound-formula">{{this.formula}}</p>
+                        <div class="card-buttons">
+                            <a href="/burn-calc/compound/{{this.id}}">
+                                <button class="btn btn-primary">Подробнее</button>
+                            </a>
+                            <button class="btn btn-primary">Добавить в заявку</button>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </main>
+
+    <a href="/burn-calc/request">
+        <div class="cart-widget">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">{{cart_count}}</span>
+        </div>
+    </a>
+</body>
+</html>

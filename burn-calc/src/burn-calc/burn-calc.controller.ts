@@ -9,9 +9,6 @@ interface Compound {
     molar_mass: number;
     formula: any; // SafeString
     description: any;
-    likes: number;
-    comments: number;
-    bookmarks: number;
     in_cart: boolean;
     priority: number;
     image_file_name: string;
@@ -35,7 +32,6 @@ export class BurnCalcController {
                 Метан – основной компонент природного газа (80-98%), попутных нефтяных газов и газов, \
                 скапливающихся в шахтах и рудниках. Также метан производится бактериями в болотах \
                 (отсюда синоним метана: «болотный газ») и в кишечнике жвачных животных."),
-            likes: 12, comments: 5, bookmarks: 1,
             in_cart: true, priority: 2,
             image_file_name: "метан.png", video_file_name: "метан.mp4",
             c_count: 1, h_count: 4, o_count: 0
@@ -53,7 +49,6 @@ export class BurnCalcController {
                 влияет на многие процессы онтогенеза. Некоторые из этих свойств этилена используются в \
                 сельском хозяйстве. Для человека этилен (точнее продукт его окисления в организме) \
                 обладает  канцерогенным действием."),
-            likes: 16, comments: 13, bookmarks: 0,
             in_cart: true, priority: 1,
             image_file_name: "этилен.png", video_file_name: "этилен.mp4",
             c_count: 2, h_count: 4, o_count: 0
@@ -70,7 +65,6 @@ export class BurnCalcController {
                 поэтому ацетилен применяют в аппаратах для сварки и резки металлов. Ацетилен \
                 в смеси с кислородом крайне опасен, может взорваться при малейшей искре, \
                 даже от разряда статического электричества."),
-            likes: 11, comments: 3, bookmarks: 5,
             in_cart: false, priority: 1,
             image_file_name: "ацетилен.png", video_file_name: "ацетилен.mp4",
             c_count: 2, h_count: 2, o_count: 0
@@ -87,7 +81,6 @@ export class BurnCalcController {
                 соединений (лекарств, пластмасс, резин, красителей и др), редко используется как \
                 растворитель.<br>Токсичен, регулярное вдыхание паров бензола вызывает онкологические \
                 заболевания, заболевания костного мозга и др."),
-            likes: 6, comments: 4, bookmarks: 2,
             in_cart: false, priority: 3,
             image_file_name: "бензол.png", video_file_name: "бензол.mp4",
             c_count: 6, h_count: 6, o_count: 0
@@ -99,7 +92,6 @@ export class BurnCalcController {
             molar_mass: 46.07,
             formula: new handlebars.SafeString("C<sub>2</sub>H<sub>6</sub>O<sub>1</sub>"),
             description: new handlebars.SafeString("Предельный одноатомный спирт..."),
-            likes: 8, comments: 2, bookmarks: 1,
             in_cart: false, priority: 1,
             image_file_name: "этанол.png", video_file_name: "этанол.mp4",
             c_count: 2, h_count: 6, o_count: 1

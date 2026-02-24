@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+{{> head}}
+<body>
+    {{> header}}
+
+    <main class="main-content">
+        <div class="container">
+            
+            <p class="page-title">Заявка</p>
+
+            <!-- Блок исходных данных -->
+            <section class="data-section">
+                <p class="section-title">Исходные данные</p>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="water-volume">Объем выделившегося водяного пара, л:</label>
+                        <input type="number" name="h2o_volume" id="water-volume" value="{{request.h2o_volume}}" placeholder=1>
+                    </div>
+                    <div class="input-group">
+                        <label for="co2-volume">Объем выделившегося углекислого газа, л:</label>
+                        <input type="number" name="co2_volume" id="co2-volume" value="{{request.co2_volume}}" placeholder=1>
+                    </div>
+                    <div class="input-group">
+                        <label for="sample-mass">Масса образца, г:</label>
+                        <input type="number" name="sample_mass" id="sample-mass" value="{{request.sample_mass}}" placeholder=1>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Блок состава заявки -->
+            <section class="composition-section">
+                <h2 class="section-title">Состав заявки</h2>
+                {{#if compounds}}
+                    {{#each compounds}}
+                        <!-- Карточка вещества -->
+                        <div class="substance-card">
+                            <div class="card-header">
+                                <h3 class="substance-name">{{this.title}}</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="substance-image">
+                                    <img src="/images/{{this.image_file_name}}" alt="Модель молекулы">
+                                </div>
+                                <div class="substance-properties">
+                                    <div class="property-group">
+                                        <label for="molar-mass-{{this.id}}">Молярная масса, г/моль</label>
+                                        <p>{{this.molar_mass}}</p>
+                                    </div>
+                                    <div class="property-group">
+                                        <label for="priority-{{this.id}}">Приоритет</label>
+                                        <input type="number" id="priority-{{this.id}}" value={{this.priority}}>
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn-icon btn-delete" title="Удалить вещество">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                {{else}}
+                    <p>Соединения не добавлены</p>
+                {{/if}}
+            </section>
+
+            <!-- Кнопка расчета -->
+            <div class="action-buttons">
+                <button class="btn btn-calculate">Сохранить все и рассчитать формулу образца</button>
+            </div>
+
+            <!-- Блок результата -->
+            <section class="result-section">
+                <h2 class="section-title">Результат</h2>
+                <div class="result-box">
+                    {{result}}
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</body>
+</html>

@@ -60,7 +60,7 @@ body {
     padding: 40px 0;
 }
 
-form {
+.search-form {
     display: flex;
     width: 100%;
     max-width: 500px;
@@ -98,10 +98,13 @@ form {
 
 /* --- Сетка товаров (Grid) --- */
 .compounds-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
-    justify-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;  /* Центрирование каждого ряда */
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 /* --- Карточка товара --- */
@@ -519,11 +522,15 @@ form {
 .action-buttons {
     display: flex;
     justify-content: center;
+    gap: 10px;
     margin-bottom: 40px;
 }
 
+.delete-btn-container {
+    width: 50%
+}
+
 .btn-calculate {
-    width: 70%;
     background: -webkit-linear-gradient(top, #606a83, #505670);
     color: white;
     border: solid 1px #567;

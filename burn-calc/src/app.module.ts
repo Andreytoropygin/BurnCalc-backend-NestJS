@@ -1,9 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BurnCalcModule } from './burn-calc/burn-calc.module';
 import { MinioModule } from './minio/minio.module';
 import { ImagesController } from './images/images.controller';
 import { VideosController } from './videos/videos.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { User } from './entities/user.entity';
+import { Compound } from './entities/compound.entity';
+import { Request } from './entities/request.entity';
+import { RequestCompound } from './entities/request-compound.entity';
+import { RequestStatus } from './entities/request-status.entity';
 
 @Module({
   imports: [
@@ -14,6 +21,21 @@ import { VideosController } from './videos/videos.controller';
       ignoreEnvFile: false,
     }),
     MinioModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASS'),
+        database: configService.get('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'], // Автоматический поиск всех *.entity файлов
+        synchronize: false, // ВАЖНО: false, так как мы используем миграции или ручное управление схемой
+        logging: true, // Включить логи SQL для отладки
+      }),
+    }),
   ],
   controllers: [ImagesController, VideosController]
 })

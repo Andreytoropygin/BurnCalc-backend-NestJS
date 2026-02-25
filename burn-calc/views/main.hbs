@@ -6,7 +6,7 @@
     <main class="main-content">
         <div class="container">
             <div class="search-container">
-                <form action="/burn-calc" method="POST">
+                <form action="/burn-calc" method="POST" class="search-form">
                     <input type="text" class="search-input" name="query" placeholder="Введите запрос" value="{{query}}">
                     <button type="submit" class="search-input-button">🔎</button>
                 </form>
@@ -16,7 +16,7 @@
                     <!-- Карточка товара -->
                     <div class="compound-card">
                         <div class="compound-image">
-                            <img src="/images/{{this.image_file_name}}" alt="Модель молекулы">
+                            <img src="/images/{{this.imageFileName}}" alt="Модель молекулы">
                         </div>
                         <p class="compound-title">{{this.title}}</p>
                         <p class="compound-formula">{{this.formula}}</p>
@@ -24,19 +24,30 @@
                             <a href="/burn-calc/compound/{{this.id}}">
                                 <button class="btn btn-primary">Подробнее</button>
                             </a>
-                            <button class="btn btn-primary">Добавить в заявку</button>
+                            <form action="/burn-calc/add-to-cart" method="POST">
+                                <input type="hidden" name="compoundId" value="{{this.id}}">
+                                <!-- Указываем, что вернуться нужно на главную -->
+                                <input type="hidden" name="redirectTo" value="/burn-calc">
+                                <button type="submit" class="btn btn-primary">Добавить в заявку</button>
+                            </form>
                         </div>
                     </div>
                 {{/each}}
             </div>
         </div>
     </main>
-
-    <a href="/burn-calc/request">
+    {{#if has_draft}}
+        <a href="/burn-calc/request/{{cart_id}}">
+            <div class="cart-widget">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">{{cart_count}}</span>
+            </div>
+        </a>
+    {{else}}
         <div class="cart-widget">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count">{{cart_count}}</span>
         </div>
-    </a>
+    {{/if}}
 </body>
 </html>

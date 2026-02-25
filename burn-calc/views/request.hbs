@@ -7,7 +7,7 @@
     <main class="main-content">
         <div class="container">
             
-            <p class="page-title">Заявка</p>
+            <p class="page-title">Заявка №{{cartId}}</p>
 
             <!-- Блок исходных данных -->
             <section class="data-section">
@@ -40,7 +40,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="substance-image">
-                                    <img src="/images/{{this.image_file_name}}" alt="Модель молекулы">
+                                    <img src="/images/{{this.imageFileName}}" alt="Модель молекулы">
                                 </div>
                                 <div class="substance-properties">
                                     <div class="property-group">
@@ -68,6 +68,9 @@
             <!-- Кнопка расчета -->
             <div class="action-buttons">
                 <button class="btn btn-calculate">Сохранить все и рассчитать формулу образца</button>
+                <form class="delete-btn-container" action="/burn-calc/delete-cart/{{cartId}}" method="POST" onsubmit="return confirm('Вы уверены?');">
+                    <button type="submit" class="btn btn-calculate">Удалить заявку</button>
+                </form>
             </div>
 
             <!-- Блок результата -->

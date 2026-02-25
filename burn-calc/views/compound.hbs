@@ -11,7 +11,7 @@
                 <div class="media-column">
                     <div class="media-wrapper">
                         <video autoplay loop muted controls width="100%" class="media-placeholder">
-                            <source src="/videos/{{compound.video_file_name}}" type="video/mp4">
+                            <source src="/videos/{{compound.videoFileName}}" type="video/mp4">
                         </video>
                     </div>
                 </div>
@@ -39,19 +39,22 @@
                                         </tr>
                                         <tr>
                                             <td>Брутто-формула</td>
-                                            <td>{{compound.formula}}</td>
+                                            <td>{{formula}}</td>
                                         </tr>
                                     </tbody>
                                 </table>
 
                                 <div class="molecule-image">
-                                    <img src="/images/{{compound.image_file_name}}" alt="Модель молекулы">
+                                    <img src="/images/{{compound.imageFileName}}" alt="Модель молекулы">
                                 </div>
 
                                 <p class="description-text">{{compound.description}}</p>
                             </div>
-
-                            <button class="add-to-request-btn">Добавить в заявку</button>
+                            <form action="/burn-calc/add-to-cart" method="POST">
+                                <input type="hidden" name="compoundId" value="{{compound.id}}">
+                                <input type="hidden" name="redirectTo" value="/burn-calc/compound/{{compound.id}}">
+                                <button type="submit" class="add-to-request-btn">Добавить в заявку</button>
+                            </form>
                         </div>
                     </div>
                 </div>

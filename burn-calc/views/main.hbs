@@ -11,28 +11,26 @@
                     <button type="submit" class="search-input-button">🔎</button>
                 </form>
             </div>
-            <div class="compounds-grid">
-                {{#each compounds}}
+            <div class="combustions-grid">
+                {{#each combustions}}
                     <!-- Карточка товара -->
-                    <div class="compound-card">
-                        <div class="compound-image">
-                            <img src="/images/{{this.image_file_name}}" alt="Модель молекулы">
-                        </div>
-                        <p class="compound-title">{{this.title}}</p>
-                        <p class="compound-formula">{{this.formula}}</p>
-                        <div class="card-buttons">
-                            <a href="/burn-calc/compound/{{this.id}}">
-                                <button class="btn btn-primary">Подробнее</button>
-                            </a>
-                            <button class="btn btn-primary">Добавить в заявку</button>
-                        </div>
+                    <div class="combustion-card">
+                        <a href="/burn-calc/combustion/{{this.id}}">
+                            <div class="combustion-card-container">
+                                <div class="combustion-image">
+                                    <img src="/images/{{this.image_file_name}}" alt="Модель молекулы">
+                                </div>
+                                <p class="combustion-title">{{this.title}}</p>
+                                <p class="combustion-formula">{{this.formula}}</p>
+                            </div>
+                        </a>
                     </div>
                 {{/each}}
             </div>
         </div>
     </main>
 
-    <a href="/burn-calc/request">
+    <a href="/burn-calc/request/1">
         <div class="cart-widget">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count">{{cart_count}}</span>

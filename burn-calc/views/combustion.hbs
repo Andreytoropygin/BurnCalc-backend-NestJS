@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+{{> head}}
+<body>
+    {{> header}}
+    <main class="main-content">
+        <div class="container combustion-page-container">
+            
+            {{#if combustion}}
+                <div class="media-wrapper">
+                    <div class="video-wrapper">
+                        <video crossorigin aria-hidden="true" autoplay playsinline loop muted controls width="100%" class="video-placeholder">
+                            <source src="/videos/{{combustion.video_file_name}}" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="caption-container">
+                        <h2>{{combustion.title}}</h2>
+                        <div class="caption-content">
+                            <p>Класс: {{combustion.class}}</p>
+                            <p>Брутто-формула: {{combustion.formula}}</p>
+                            <p>
+                                При сгорании выделяет {{combustion.specific_h2o_volume}}л 
+                                H<sub>2</sub>0 и {{combustion.specific_co2_volume}}л
+                                CO<sub>2</sub> на каждый моль вещества
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {{else}}
+                <h2>{{title}}</h2>
+            {{/if}}
+
+        </div>
+    </main>
+
+</body>
+</html>

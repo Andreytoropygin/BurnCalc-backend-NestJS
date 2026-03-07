@@ -72,7 +72,6 @@ form {
     border-right-color: #147;
     border-radius: 5px;
     padding: 9px;
-    transition: border-color 0.3s ease;
     background-color: #f4eeff;
 }
 
@@ -97,40 +96,46 @@ form {
 }
 
 /* --- Сетка товаров (Grid) --- */
-.compounds-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
-    justify-items: center;
+.combustions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;  /* Центрирование каждого ряда */
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 /* --- Карточка товара --- */
-.compound-card {
+.combustion-card {
     background-color: white;
     border-radius: 6px;
+    align-items: center;
+    border: #567 solid 1px;
+}
+
+.combustion-card-container {
     padding: 20px;
     text-align: center;
     width: 250px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: #567 solid 1px;
 }
 
-.compound-image img {
+.combustion-image img {
     width: 150px;
     height: 150px;
     object-fit: contain;
     margin-bottom: 10px;
 }
 
-.compound-title {
+.combustion-title {
     font-size: 1.3rem;
     margin-bottom: 5px;
 }
 
-.compound-formula {
+.combustion-formula {
     font-size: 1.1rem;
     margin-bottom: 10px;
 }
@@ -150,7 +155,6 @@ form {
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 500;
-    transition: background-color 0.3s ease;
     width: 100%;
 }
 
@@ -179,7 +183,6 @@ form {
     font-size: 1.8rem;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
 }
 
 .cart-widget:hover {
@@ -204,7 +207,7 @@ form {
 
 /* --- Адаптивность для мобильных устройств --- */
 @media (max-width: 768px) {
-    .compounds-grid {
+    .combustions-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 20px;
     }
@@ -214,40 +217,51 @@ form {
     }
 }
 
-/* compound page */
-.compound-page-container {
+/* combustion page */
+.combustion-page-container {
     display: flex;
+    flex-direction: column;
     gap: 40px;
-    align-items: flex-start;
+    align-items:center;
 }
 
 /* --- Левая колонка: Медиа --- */
-.media-column {
+.media-wrapper {
     flex: 1;
-    max-width: 400px;
+    position: relative;
 }
 
-.media-wrapper {
+.video-wrapper {
     position: relative;
     background-color: black;
+    border: none;
     border-radius: 50px;
     overflow: hidden;
+    height: 800px;
     aspect-ratio: 9 / 16; /* Соотношение сторон как у вертикального видео */
 }
 
-.media-placeholder {
+.video-placeholder {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.interaction-buttons {
+.caption-container {
     position: absolute;
-    right: 5%;
-    bottom: 30%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 25px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    color: #fff;
+}
+
+.caption-content {
+    display: flex;
+    flex-direction: column;
+    font-size: 12pt;
 }
 
 .interaction-btn {
@@ -272,17 +286,17 @@ form {
     flex: 2;
 }
 
-.compound-info-card {
+.combustion-info-card {
     background-color: white;
     border-radius: 5px;
     border: 1px solid #567;
 }
 
-.compound-info-card-content {
+.combustion-info-card-content {
     padding: 30px;
 }
 
-.compound-info-card-title {
+.combustion-info-card-title {
     background: -webkit-linear-gradient(top, #606a83, #505670);
     color: white;
     text-align: center;
@@ -305,7 +319,6 @@ form {
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    transition: all 0.3s ease;
 }
 
 .tab-btn.active {
@@ -364,7 +377,6 @@ form {
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 .add-to-request-btn:hover {
@@ -423,7 +435,6 @@ form {
     border-radius: 5px;
     font-size: 1rem;
     outline: none;
-    transition: border-color 0.3s ease;
 }
 
 /* --- Блок состава заявки --- */
@@ -431,7 +442,7 @@ form {
     margin-bottom: 40px;
 }
 
-.substance-card {
+.request-combustion-card {
     background-color: white;
     border-radius: 6px;
     margin-bottom: 25px;
@@ -445,7 +456,7 @@ form {
     padding: 10px 20px;
 }
 
-.substance-name {
+.request-combustion-name {
     font-size: 1.2rem;
     font-weight: 500;
 }
@@ -457,13 +468,13 @@ form {
     gap: 20px;
 }
 
-.substance-image img {
+.request-combustion-image img {
     width: 120px;
     height: 120px;
     object-fit: contain;
 }
 
-.substance-properties {
+.request-combustion-properties {
     flex-grow: 1;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -473,6 +484,7 @@ form {
 .property-group {
     display: flex;
     flex-direction: column;
+    justify-content: end;
 }
 
 .property-group label {
@@ -492,7 +504,11 @@ form {
     border-radius: 5px;
     font-size: 0.95rem;
     outline: none;
-    transition: border-color 0.3s ease;
+}
+
+.property-result {
+    border-left: #567 solid 1px;
+    padding-left: 20px;
 }
 
 .card-actions {
@@ -506,7 +522,6 @@ form {
     cursor: pointer;
     font-size: 1.5rem;
     color: #e74c3c;
-    transition: color 0.3s ease, transform 0.2s ease;
     margin: 0 10px;
 }
 
@@ -578,3 +593,8 @@ a:active {
     color: inherit;
     text-decoration: none;
 }
+
+video::-webkit-media-controls {
+    display: none !important;
+}
+

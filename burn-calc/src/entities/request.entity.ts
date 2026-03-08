@@ -36,11 +36,11 @@ export class Request {
   h2oVolume: number;
 
   // Связи
-  @ManyToOne(() => User, (user) => user.requests, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => User, (user) => user.requests)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'moderator_id' })
   moderator: User;
 

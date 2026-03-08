@@ -1,14 +1,17 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
 import { Request } from './request.entity';
 import { Combustion } from './combustion.entity';
 
 @Entity('Request_combustion')
+@Unique('uq_request_combustion', ['requestId', 'combustionId'])
 export class RequestCombustion {
-  // Составной первичный ключ
-  @PrimaryColumn({ name: 'request_id' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ name: 'request_id' })
   requestId: number;
 
-  @PrimaryColumn({ name: 'combustion_id' })
+  @Column({ name: 'combustion_id' })
   combustionId: number;
 
   @Column({ nullable: true })

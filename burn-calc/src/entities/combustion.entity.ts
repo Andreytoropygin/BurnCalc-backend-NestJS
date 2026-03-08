@@ -6,7 +6,7 @@ export class Combustion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, unique: true })
   title: string;
 
   @Column({ default: true })
@@ -18,7 +18,7 @@ export class Combustion {
   @Column({ length: 50, nullable: true })
   video_file_name: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, unique: true })
   formula: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 4 })

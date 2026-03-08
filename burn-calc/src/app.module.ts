@@ -7,10 +7,9 @@ import { VideosController } from './videos/videos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { User } from './entities/user.entity';
-import { Compound } from './entities/compound.entity';
+import { Combustion } from './entities/combustion.entity';
 import { Request } from './entities/request.entity';
-import { RequestCompound } from './entities/request-compound.entity';
-import { RequestStatus } from './entities/request-status.entity';
+import { RequestCombustion } from './entities/request-combustion.entity';
 
 @Module({
   imports: [

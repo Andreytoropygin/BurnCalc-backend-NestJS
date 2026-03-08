@@ -6,81 +6,76 @@
 
     <main class="main-content">
         <div class="container">
-            
-            <p class="page-title">Заявка №{{cartId}}</p>
+            {{#if request}}
+                <p class="page-title">Заявка №{{request.id}}</p>
 
-            <!-- Блок исходных данных -->
-            <section class="data-section">
-                <p class="section-title">Исходные данные</p>
-                <div class="input-grid">
-                    <div class="input-group">
-                        <label for="water-volume">Объем выделившегося водяного пара, л:</label>
-                        <input type="number" name="h2o_volume" id="water-volume" value="{{request.h2o_volume}}" placeholder=1>
-                    </div>
-                    <div class="input-group">
-                        <label for="co2-volume">Объем выделившегося углекислого газа, л:</label>
-                        <input type="number" name="co2_volume" id="co2-volume" value="{{request.co2_volume}}" placeholder=1>
-                    </div>
-                    <div class="input-group">
-                        <label for="sample-mass">Масса образца, г:</label>
-                        <input type="number" name="sample_mass" id="sample-mass" value="{{request.sample_mass}}" placeholder=1>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Блок состава заявки -->
-            <section class="composition-section">
-                <h2 class="section-title">Состав заявки</h2>
-                {{#if compounds}}
-                    {{#each compounds}}
-                        <!-- Карточка вещества -->
-                        <div class="substance-card">
-                            <div class="card-header">
-                                <h3 class="substance-name">{{this.title}}</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="substance-image">
-                                    <img src="/images/{{this.imageFileName}}" alt="Модель молекулы">
-                                </div>
-                                <div class="substance-properties">
-                                    <div class="property-group">
-                                        <label for="molar-mass-{{this.id}}">Молярная масса, г/моль</label>
-                                        <p>{{this.molar_mass}}</p>
-                                    </div>
-                                    <div class="property-group">
-                                        <label for="priority-{{this.id}}">Приоритет</label>
-                                        <input type="number" id="priority-{{this.id}}" value={{this.priority}}>
-                                    </div>
-                                </div>
-                                <div class="card-actions">
-                                    <button class="btn-icon btn-delete" title="Удалить вещество">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
+                <!-- Блок исходных данных -->
+                <section class="data-section">
+                    <p class="section-title">Исходные данные</p>
+                    <div class="input-grid">
+                        <div class="input-group h2o_volume">
+                            <label for="water-volume">Объем выделившегося водяного пара, л:</label>
+                            <input type="number" name="h2o_volume" id="water-volume" value="{{request.h2oVolume}}" placeholder=1>
                         </div>
-                    {{/each}}
-                {{else}}
-                    <p>Соединения не добавлены</p>
-                {{/if}}
-            </section>
+                        <div class="input-group">
+                            <label for="co2-volume">Объем выделившегося углекислого газа, л:</label>
+                            <input type="number" name="co2_volume" id="co2-volume" value="{{request.co2Volume}}" placeholder=1>
+                        </div>
+                        <div class="input-group">
+                            <label for="sample-description">Описание образца:</label>
+                            <input type="text" name="sample_description" id="sample-description" value="{{request.sampleDescription}}" placeholder="Описание...">
+                        </div>
+                    </div>
+                </section>
 
-            <!-- Кнопка расчета -->
-            <div class="action-buttons">
-                <button class="btn btn-calculate">Сохранить все и рассчитать формулу образца</button>
-                <form class="delete-btn-container" action="/burn-calc/delete-cart/{{cartId}}" method="POST" onsubmit="return confirm('Вы уверены?');">
-                    <button type="submit" class="btn btn-calculate">Удалить заявку</button>
-                </form>
-            </div>
-
-            <!-- Блок результата -->
-            <section class="result-section">
-                <h2 class="section-title">Результат</h2>
-                <div class="result-box">
-                    {{result}}
-                </div>
-            </section>
-
+                <!-- Блок состава заявки -->
+                <section class="composition-section">
+                    <h2 class="section-title">Состав заявки</h2>
+                    {{#if request.requestCombustions}}
+                        {{#each request.requestCombustions}}
+                            <!-- Карточка соединения -->
+                            <div class="request-combustion-card">
+                                <div class="card-header">
+                                    <h3 class="request-combustion-name">{{this.combustion.title}}</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="request-combustion-image">
+                                        <img src="/images/{{this.combustion.image_file_name}}" alt="Модель молекулы">
+                                    </div>
+                                    <div class="request-combustion-properties">
+                                        <div class="property-group">
+                                            <label for="specific-h2o-volume-{{this.combustionId}}">Эталонный объем водяного пара сгорания, л/моль</label>
+                                            <p>{{this.combustion.specific_h2o_volume}}</p>
+                                        </div>
+                                        <div class="property-group">
+                                            <label for="specific-co2-volume-{{this.combustionId}}">Эталонный объем углекислого газа сгорания, л/моль</label>
+                                            <p>{{this.combustion.specific_co2_volume}}</p>
+                                        </div>
+                                        <div class="property-group">
+                                            <label for="request-comment-{{this.requestId}}-{{this.combustionId}}">Комментарий</label>
+                                            <input type="text" id="request-comment-{{this.requestId}}-{{this.combustionId}}" value="{{this.comment}}" placeholder="Комментарий">
+                                        </div>
+                                        <div class="property-group property-result">
+                                            <label for="amount-{{this.requestId}}-{{this.combustionId}}">Количество, моль</label>
+                                            <p>{{this.amount}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {{/each}}
+                    {{else}}
+                        <p>Соединения не добавлены</p>
+                    {{/if}}
+                </section>
+                <section class="actions-section">
+                    <!-- Кнопка расчета -->
+                    <form class="delete-request-btn-container" action="/burn-calc/delete-request/{{request.id}}" method="POST">
+                        <button type="submit" class="btn btn-delete-request">Удалить заявку</button>
+                    </form>
+                </section>
+            {{else}}
+                <h2>{{title}}</h2>
+            {{/if}}
         </div>
     </main>
 

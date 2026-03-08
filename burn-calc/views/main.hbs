@@ -11,42 +11,41 @@
                     <button type="submit" class="search-input-button">🔎</button>
                 </form>
             </div>
-            <div class="compounds-grid">
-                {{#each compounds}}
+            <div class="combustions-grid">
+                {{#each combustions}}
                     <!-- Карточка товара -->
-                    <div class="compound-card">
-                        <div class="compound-image">
-                            <img src="/images/{{this.imageFileName}}" alt="Модель молекулы">
-                        </div>
-                        <p class="compound-title">{{this.title}}</p>
-                        <p class="compound-formula">{{this.formula}}</p>
-                        <div class="card-buttons">
-                            <a href="/burn-calc/compound/{{this.id}}">
-                                <button class="btn btn-primary">Подробнее</button>
-                            </a>
-                            <form action="/burn-calc/add-to-cart" method="POST">
-                                <input type="hidden" name="compoundId" value="{{this.id}}">
-                                <!-- Указываем, что вернуться нужно на главную -->
-                                <input type="hidden" name="redirectTo" value="/burn-calc">
-                                <button type="submit" class="btn btn-primary">Добавить в заявку</button>
-                            </form>
-                        </div>
+                    <div class="combustion-card">
+                        <a href="/burn-calc/combustion/{{this.id}}">
+                            <div class="combustion-card-container">
+                                <div class="combustion-image">
+                                    <img src="/images/{{this.image_file_name}}" alt="Модель молекулы">
+                                </div>
+                                <p class="combustion-title">{{this.title}}</p>
+                                <p class="combustion-formula">{{this.formula}}</p>
+                                <form action="/burn-calc/add-to-request" method="POST" class="add-to-request-form">
+                                    <input type="hidden" name="combustionId" value="{{this.id}}">
+                                    <!-- Указываем, что вернуться нужно на главную -->
+                                    <input type="hidden" name="redirectTo" value="/burn-calc">
+                                    <button type="submit" class="btn btn-primary">Добавить в заявку</button>
+                                </form>
+                            </div>
+                        </a>
                     </div>
                 {{/each}}
             </div>
         </div>
     </main>
+
     {{#if has_draft}}
-        <a href="/burn-calc/request/{{cart_id}}">
-            <div class="cart-widget">
+        <a href="/burn-calc/request/{{request_id}}">
+            <div class="request-widget request-widget-active">
                 <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count">{{cart_count}}</span>
+                <span class="request-count">{{request_count}}</span>
             </div>
         </a>
     {{else}}
-        <div class="cart-widget">
+        <div class="request-widget request-widget-unactive">
             <i class="fas fa-shopping-cart"></i>
-            <span class="cart-count">{{cart_count}}</span>
         </div>
     {{/if}}
 </body>

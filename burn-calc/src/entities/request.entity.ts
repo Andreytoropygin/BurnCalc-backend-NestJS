@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
-import { RequestStatus } from './request-status.entity';
-import { RequestCompound } from './request-compound.entity';
-import { Compound } from './compound.entity';
+import { RequestCombustion } from './request-combustion.entity';
+import { Combustion } from './combustion.entity';
 
 @Entity('Request')
 export class Request {
@@ -12,8 +11,8 @@ export class Request {
   @Column({ name: 'user_id' })
   userId: number;
 
-  @Column({ name: 'status_id' })
-  statusId: number;
+  @Column({ length: 20 })
+  status: string;
 
   @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -27,8 +26,8 @@ export class Request {
   @Column({ name: 'moderator_id', nullable: true })
   moderatorId: number;
 
-  @Column({ name: 'sample_mass', type: 'decimal', precision: 10, scale: 4, nullable: true })
-  sampleMass: number;
+  @Column({ name: 'sample_description', nullable: true })
+  sampleDescription: string;
 
   @Column({ name: 'co2_volume', type: 'decimal', precision: 10, scale: 4, nullable: true })
   co2Volume: number;
@@ -36,26 +35,15 @@ export class Request {
   @Column({ name: 'h2o_volume', type: 'decimal', precision: 10, scale: 4, nullable: true })
   h2oVolume: number;
 
-  @Column({ name: 'calculated_compound_id', nullable: true })
-  calculatedCompoundId: number;
-
   // Связи
   @ManyToOne(() => User, (user) => user.requests, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => RequestStatus, (status) => status.requests, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'status_id' })
-  status: RequestStatus;
-
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'moderator_id' })
   moderator: User;
 
-  @ManyToOne(() => Compound, { onDelete: 'RESTRICT', nullable: true })
-  @JoinColumn({ name: 'calculated_compound_id' })
-  calculatedCompound: Compound;
-
-  @OneToMany(() => RequestCompound, (rc) => rc.request)
-  requestCompounds: RequestCompound[];
+  @OneToMany(() => RequestCombustion, (rc) => rc.request)
+  requestCombustions: RequestCombustion[];
 }

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Request } from './request.entity';
 
-@Entity('User') // Имя таблицы в БД точно как в SQL (с большой буквы, если создавали так)
+@Entity('User')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -12,9 +12,12 @@ export class User {
   @Column({ name: 'password', length: 50 })
   password: string;
 
-  @Column({ length: 20, default: 'user' })
-  role: string;
+  @Column()
+  is_moderator: boolean;
 
   @OneToMany(() => Request, (request) => request.user)
   requests: Request[];
+
+  @OneToMany(() => Request, (request) => request.moderator)
+  moderated_requests: Request[];
 }

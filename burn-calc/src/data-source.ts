@@ -8,9 +8,8 @@ dotenv.config();
 // Импортируем ваши Entity (убедитесь, что пути правильные)
 import { User } from './entities/user.entity';
 import { Request } from './entities/request.entity';
-import { Compound } from './entities/compound.entity';
-import { RequestStatus } from './entities/request-status.entity';
-import { RequestCompound } from './entities/request-compound.entity';
+import { Combustion } from './entities/combustion.entity';
+import { RequestCombustion } from './entities/request-combustion.entity';
 
 // Вспомогательная функция для безопасного получения строк
 const getEnv = (key: string, defaultValue?: string): string => {
@@ -30,7 +29,7 @@ export const AppDataSource = new DataSource({
   password: getEnv('DB_PASS', 'andreyroot'),
   database: getEnv('DB_NAME', 'burn-calc-db'),
   
-  entities: [User, Request, Compound, RequestStatus, RequestCompound],
+  entities: [User, Request, Combustion, RequestCombustion],
   migrations: ['./src/migrations/*.ts'],
   synchronize: false, // Важно: false при использовании миграций
   logging: true,      // Включите логи, чтобы видеть SQL запросы

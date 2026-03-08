@@ -136,7 +136,7 @@ export class BurnCalcService {
   // Логическое удаление
   async deleterequestSQL(userId: number, requestId: number) {    
     const result = await this.dataSource.query(
-      `UPDATE "Request" SET status_code = $1, formed_at = NOW() 
+      `UPDATE "Request" SET status = $1, formed_at = NOW() 
        WHERE id = $2 AND user_id = $3`,
       [DELETED_STATUS, requestId, userId]
     );

@@ -1,100 +1,221 @@
 // src/modules/combustions/services/combustion.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CombustionRepository } from '../repositories/combustion.repository';
-import { MinioService } from '../../../common/minio/minio.service';
-import { CombustionResponseDto } from '../dto/combustion-response.dto';
-import { CreateCombustionDto } from '../dto/create-combustion.dto';
+import { CompoundCombustionRepository } from '../../compound-combustions/repositories/compound-combustion.repository';
+import { SingletonUser } from 'src/common/singleton-user.service';
+import { CombustionListResponseDto, CombustionSingleResponseDto, CompoundInCombustionDto } from '../dto/combustion-response.dto';
 import { CombustionFiltersDto } from '../dto/combustion-filters.dto';
-import { Combustion } from 'src/entities/combustion.entity';
+import { UpdateCombustionDto } from '../dto/update-combustion.dto';
+import { CombustionDraftBriefDto } from '../dto/combustion-draft-brief.dto';
+import { MinioService } from 'src/common/minio/minio.service';
 
 @Injectable()
 export class CombustionService {
+  private readonly singletonUser = SingletonUser.getInstance();
+
   constructor(
-    private repository: CombustionRepository,
-    private minioService: MinioService,
+    private combustionRepo: CombustionRepository,
+    private ccRepo: CompoundCombustionRepository,
+    private minioService: MinioService
   ) {}
 
-  async findAll(filters?: CombustionFiltersDto): Promise<CombustionResponseDto[]> {
-    let combustions = await this.repository.findAll(filters);
+  async getDraftBrief(): Promise<CombustionDraftBriefDto> {
+    const creatorId = this.singletonUser.getCreatorId();
+    const draft = await this.combustionRepo.findDraftByUserId(creatorId);
 
-    for (let combustion of combustions) {
-      if (combustion.imageUrl) {
-        const imageFileName = combustion.imageUrl.split('/').pop();
-        combustion.imageUrl = await this.minioService.getSignedUrl(imageFileName);
-      }
-  
-      if (combustion.videoUrl) {
-        const videoFileName = combustion.videoUrl.split('/').pop();
-        combustion.videoUrl = await this.minioService.getSignedUrl(videoFileName)
-      }
+    if (!draft) {
+      return { combustionId: null, compoundsCount: 0 } as CombustionDraftBriefDto;
     }
-    return combustions as CombustionResponseDto[];
+
+    const compounds = await this.ccRepo.findByCombustionId(draft.id);
+    return { combustionId: draft.id, compoundsCount: compounds.length };
   }
 
-  async findById(id: number): Promise<CombustionResponseDto> {
-    let combustion = await this.repository.findById(id);
+  async findAll(filters?: CombustionFiltersDto): Promise<CombustionListResponseDto[]> {
+    const combustions = await this.combustionRepo.findAll(filters);
+
+    return combustions.map(c => {
+      const resultsCount = c.compoundCombustions?.filter(
+        cc => cc.amount !== null && cc.amount !== undefined,
+      ).length || 0;
+
+      return {
+        id: c.id,
+        userName: c.user.name,
+        moderatorName: c.moderator.name,
+        status: c.status,
+        createdAt: c.createdAt,
+        formedAt: c.formedAt,
+        completedAt: c.completedAt,
+        h2oVolume: c.h2oVolume,
+        co2Volume: c.co2Volume,
+        sampleDescription: c.sampleDescription,
+        resultsCount: resultsCount
+      } as CombustionListResponseDto;
+    }) as CombustionListResponseDto[];
+  }
+
+  async findById(id: number): Promise<CombustionSingleResponseDto> {
+    const combustion = await this.combustionRepo.findById(id);
+    if (!combustion || combustion.status === 'deleted') {
+      throw new NotFoundException(`Заявка с ID ${id} не найдена`);
+    }
+
+    let compounds: CompoundInCombustionDto[] =
+      combustion.compoundCombustions?.map(cc => ({
+        imageUrl: cc.compound?.imageUrl || null,
+        comment: cc.comment,
+        amount: cc.amount,
+        id: cc.compoundId,
+        title: cc.compound.title,
+        specificCo2Volume: cc.compound.specificCo2Volume,
+        specificH2oVolume: cc.compound.specificH2oVolume
+        
+      })) || [];
+
+      for (let compound of compounds) {
+        if (compound.imageUrl) {
+          const imageFileName = compound.imageUrl.split('/').pop();
+          compound.imageUrl = await this.minioService.getSignedUrl(imageFileName);
+        }
+      }
+
+    return { 
+      id: combustion.id,
+      userId: combustion.userId,
+      moderatorId: combustion.moderatorId,
+      status: combustion.status,
+      createdAt: combustion.createdAt,
+      formedAt: combustion.formedAt,
+      completedAt: combustion.completedAt,
+      co2Volume: combustion.co2Volume,
+      h2oVolume: combustion.h2oVolume,
+      sampleDescription: combustion.sampleDescription,
+      compounds,
+     } as CombustionSingleResponseDto;
+  }
+
+  async update(dto: UpdateCombustionDto): Promise<CombustionSingleResponseDto> {
+    const creatorId = this.singletonUser.getCreatorId();
+    const combustion = await this.combustionRepo.findDraftByUserId(creatorId);
     if (!combustion) {
-      throw new NotFoundException(`Услуга с ID ${id} не найдена`);
+      throw new NotFoundException(`Черновик пользователя с ID ${creatorId} не найден`);
     }
 
-    if (combustion.imageUrl) {
-      const imageFileName = combustion.imageUrl.split('/').pop();
-      combustion.imageUrl = await this.minioService.getSignedUrl(imageFileName);
-    }
+    const updatedCombustion = await this.combustionRepo.update(combustion.id, dto)
 
-    if (combustion.videoUrl) {
-      const videoFileName = combustion.videoUrl.split('/').pop();
-      combustion.videoUrl = await this.minioService.getSignedUrl(videoFileName)
-    }
-
-    return combustion as CombustionResponseDto;
+    return {
+      id: updatedCombustion.id,
+      co2Volume: updatedCombustion.co2Volume,
+      h2oVolume: updatedCombustion.h2oVolume,
+      sampleDescription: updatedCombustion.sampleDescription
+    } as CombustionSingleResponseDto;
   }
 
-  async create(
-    dto: CreateCombustionDto,
-    imageFile?: Express.Multer.File,
-    videoFile?: Express.Multer.File,
-  ): Promise<CombustionResponseDto> {
-    const data: Partial<Combustion> = {
-      title: dto.title || `Combustion-${Date.now()}`,
-      formula: dto.formula || `formula-${Date.now()}`,
-      class: dto.class || 'organic',
-      specificH2oVolume: dto.specificH2oVolume || 0,
-      specificCo2Volume: dto.specificCo2Volume || 0,
-      isActive: true,
-      imageUrl: null,
-      videoUrl: null,
+  async form(): Promise<CombustionListResponseDto> {
+    const creatorId = this.singletonUser.getCreatorId();
+    let combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+    if (!combustion) {
+      throw new NotFoundException(`Черновик пользователя с ID ${creatorId} не найден`);
+    }
+
+    const compoundCombustions = combustion.compoundCombustions;
+    if (compoundCombustions.length === 0) {
+      throw new BadRequestException('Сгорание должно содержать хотя бы одно соединение');
+    }
+
+    if (!combustion.co2Volume || !combustion.h2oVolume) {
+      throw new BadRequestException('Необходимо указать co2Volume и h2oVolume');
+    }
+
+    // Расчет amount по формуле из лаб 2
+    for (let cc of compoundCombustions) {
+      const compound = cc.compound;
+      if (compound && compound.specificCo2Volume > 0 && compound.specificH2oVolume > 0) {
+        const amountByCo2 = combustion.co2Volume / compound.specificCo2Volume;
+        const amountByH2o = combustion.h2oVolume / compound.specificH2oVolume;
+        const error = Math.abs(amountByCo2 - amountByH2o) / (amountByCo2 + amountByH2o);
+        cc.amount =
+          error <= 0.1
+            ? Number(((amountByH2o + amountByCo2) / 2).toFixed(4))
+            : 0;
+        await this.ccRepo.update(cc.combustionId, cc.compoundId, { amount: cc.amount });
+      }
+    }
+
+    const updatedCombustion = await this.combustionRepo.update(combustion.id, {
+      status: 'formed',
+      formedAt: new Date(),
+      moderatorId: this.singletonUser.getModeratorId()
+    });
+   
+    const resultsCount = updatedCombustion.compoundCombustions?.filter(
+      cc => cc.amount !== null && cc.amount !== undefined,
+    ).length || 0;
+
+    return {
+      id: updatedCombustion.id,
+      userName: updatedCombustion.user.name,
+      moderatorName: updatedCombustion.moderator?.name || null,
+      status: updatedCombustion.status,
+      createdAt: updatedCombustion.createdAt,
+      formedAt: updatedCombustion.formedAt,
+      resultsCount: resultsCount
+    } as CombustionListResponseDto;
+  }
+
+  async complete(id: number, action: 'approve' | 'reject'): Promise<CombustionListResponseDto> {
+    const combustion = await this.combustionRepo.findById(id);
+    if (!combustion || combustion.status === 'deleted') {
+      throw new NotFoundException(`Заявка с ID ${id} не найдена`);
+    }
+
+    if (combustion.moderatorId !== this.singletonUser.getModeratorId()) {
+      throw new ForbiddenException('Только модератор может подтвердить/отклонить заявку');
+    }
+
+    if (combustion.status !== 'formed') {
+      throw new BadRequestException('Можно подтвердить/отклонить только сформированную заявку');
+    }
+
+    const updatedCombustion = await this.combustionRepo.update(id, {
+      status: action === 'approve' ? 'approved' : 'rejected',
+      moderatorId: this.singletonUser.getModeratorId(),
+      completedAt: new Date(),
+    });
+
+    const resultsCount = updatedCombustion.compoundCombustions?.filter(
+      rc => rc.amount !== null && rc.amount !== undefined,
+    ).length || 0;
+
+    return {
+      id: updatedCombustion.id,
+      userName: updatedCombustion.user.name,
+      moderatorName: updatedCombustion.moderator.name,
+      status: updatedCombustion.status,
+      createdAt: updatedCombustion.createdAt,
+      formedAt: updatedCombustion.formedAt,
+      completedAt: updatedCombustion.completedAt,
+      resultsCount: resultsCount
+    } as CombustionListResponseDto;
+  }
+
+  async remove(): Promise<{ message: string }> {
+    const creatorId = this.singletonUser.getCreatorId();
+    const combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+    if (!combustion) {
+      throw new NotFoundException(`Черновик пользователя с ID ${creatorId} не найден`);
+    }
+
+    await this.combustionRepo.softDelete(combustion.id);
+
+    return {
+      message: `Черновик успешно удален`,
     };
-
-    let combustion = await this.repository.create(data);
-    
-    if (imageFile) {
-      const imageName = `combustion-${combustion.id}-${Date.now()}-image.${imageFile.originalname.split('.').pop()}`;
-      data.imageUrl = await this.minioService.uploadFile(imageFile.buffer, imageName, imageFile.mimetype);
-    }
-
-    if (videoFile) {
-      const videoName = `combustion-${combustion.id}-${Date.now()}-video.${videoFile.originalname.split('.').pop()}`;
-      data.videoUrl = await this.minioService.uploadFile(videoFile.buffer, videoName, videoFile.mimetype);
-    }
-
-    if (imageFile || videoFile) {
-      combustion = await this.repository.update(
-        combustion.id,
-        {imageUrl: data.imageUrl, videoUrl: data.videoUrl}
-      );
-    }
-
-    if (combustion.imageUrl) {
-      const imageFileName = combustion.imageUrl.split('/').pop();
-      combustion.imageUrl = await this.minioService.getSignedUrl(imageFileName);
-    }
-
-    if (combustion.videoUrl) {
-      const videoFileName = combustion.videoUrl.split('/').pop();
-      combustion.videoUrl = await this.minioService.getSignedUrl(videoFileName)
-    }
-      
-    return combustion as CombustionResponseDto;
   }
 }

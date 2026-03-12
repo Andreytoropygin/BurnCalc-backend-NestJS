@@ -1,8 +1,8 @@
-// src/modules/combustions/dto/create-combustion.dto.ts
+// src/modules/compounds/dto/create-compound.dto.ts
 import { IsString, IsNumber, Min, IsOptional} from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateCombustionDto {
+export class CreateCompoundDto {
   @IsString()
   @IsOptional()
   title?: string;

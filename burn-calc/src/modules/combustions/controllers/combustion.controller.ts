@@ -2,49 +2,67 @@
 import {
   Controller,
   Get,
-  Post,
+  Put,
+  Delete,
   Param,
   Query,
   ParseIntPipe,
-  UseInterceptors,
-  UploadedFiles,
   Body,
 } from '@nestjs/common';
-import {FilesInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 import { CombustionService } from '../services/combustion.service';
-import { CombustionResponseDto } from '../dto/combustion-response.dto';
+import { CombustionListResponseDto, CombustionSingleResponseDto } from '../dto/combustion-response.dto';
 import { CombustionFiltersDto } from '../dto/combustion-filters.dto';
-import { CreateCombustionDto } from '../dto/create-combustion.dto';
+import { UpdateCombustionDto } from '../dto/update-combustion.dto';
+import { CombustionDraftBriefDto } from '../dto/combustion-draft-brief.dto';
+import { CompleteCombustionDto } from '../dto/complete-combustion.dto';
 
 @Controller('combustions')
 export class CombustionController {
   constructor(private service: CombustionService) {}
 
+  @Get('draft-brief')
+  async getCartIcon(): Promise<CombustionDraftBriefDto> {
+    return this.service.getDraftBrief();
+  }
+
   @Get()
-  async findAll(@Query() filters: CombustionFiltersDto): Promise<CombustionResponseDto[]> {
+  async findAll(
+    @Query() filters: CombustionFiltersDto
+  ): Promise<CombustionListResponseDto[]> {
     return this.service.findAll(filters);
   }
 
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number): Promise<CombustionResponseDto> {
+  async findById(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<CombustionSingleResponseDto> {
     return this.service.findById(id);
   }
 
-  @Post()
-  @UseInterceptors(
-    FilesInterceptor('files', 2, {
-      storage: memoryStorage(),
-      limits: { fileSize: 10 * 1024 * 1024 },
-    }),
-  )
-  async create(
-    @UploadedFiles() files: Express.Multer.File[],
-    @Body() dto: CreateCombustionDto
-  ): Promise<CombustionResponseDto> {
-    const imageFile = files?.find(f => f.mimetype.startsWith('image/'));
-    const videoFile = files?.find(f => f.mimetype.startsWith('video/'));
+  @Put()
+  async update(
+    @Body() dto: UpdateCombustionDto,
+  ): Promise<CombustionSingleResponseDto> {
+    return this.service.update(dto);
+  }
 
-    return this.service.create(dto, imageFile, videoFile);
+  @Put('form')
+  async form(
+  ): Promise<CombustionListResponseDto> {
+    return this.service.form();
+  }
+
+  @Put(':id/complete')
+  async complete(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CompleteCombustionDto,
+  ): Promise<CombustionListResponseDto> {
+    return this.service.complete(id, dto.action);
+  }
+
+  @Delete()
+  async remove(
+  ): Promise<{ message: string }> {
+    return this.service.remove();
   }
 }

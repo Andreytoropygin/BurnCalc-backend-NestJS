@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Request } from './request.entity';
+import { Combustion } from './combustion.entity';
 
-@Entity('User')
+@Entity('Users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -15,9 +15,9 @@ export class User {
   @Column({ name: 'is_moderator' })
   isModerator: boolean;
 
-  @OneToMany(() => Request, (request) => request.user)
-  requests: Request[];
+  @OneToMany(() => Combustion, (combustion) => combustion.user)
+  combustions: Combustion[];
 
-  @OneToMany(() => Request, (request) => request.moderator)
-  moderatedRequests: Request[];
+  @OneToMany(() => Combustion, (combustion) => combustion.moderator)
+  moderatedCombustions: Combustion[];
 }

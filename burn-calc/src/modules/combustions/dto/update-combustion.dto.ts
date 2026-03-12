@@ -1,8 +1,8 @@
-// src/modules/requests/dto/update-request.dto.ts
+// src/modules/combustions/dto/update-combustion.dto.ts
 import { IsString, IsOptional, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class UpdateRequestDto {
+export class UpdateCombustionDto {
   @IsString()
   @IsOptional()
   sampleDescription?: string;

@@ -5,9 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from './common/database.module';
 
 // Импорт модулей доменов
+import { CompoundsModule } from './modules/compounds/compounds.module';
 import { CombustionsModule } from './modules/combustions/combustions.module';
-import { RequestsModule } from './modules/requests/requests.module';
-import { RequestCombustionsModule } from './modules/request-combustions/request-combustions.module';
+import { CompoundCombustionsModule } from './modules/compound-combustions/compound-combustions.module';
 import { UsersModule } from './modules/users/users.module';
 import { MinioModule } from './common/minio/minio.module';
 
@@ -39,9 +39,9 @@ import { MinioModule } from './common/minio/minio.module';
     // Модули доменов
     MinioModule,
     DatabaseModule,
+    CompoundsModule,
     CombustionsModule,
-    RequestsModule,
-    RequestCombustionsModule,
+    CompoundCombustionsModule,
     UsersModule,
   ]
 })

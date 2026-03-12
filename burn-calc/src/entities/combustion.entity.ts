@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { RequestCombustion } from './request-combustion.entity';
-import { Exclude } from 'class-transformer';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn } from 'typeorm';
+import { User } from './user.entity';
+import { CompoundCombustion } from './compound-combustion.entity';
+
 
 const numberTransformer = {
   to: (value: number) => value,
@@ -8,36 +9,48 @@ const numberTransformer = {
     value !== null ? parseFloat(value) : null,
 };
 
-@Entity('Combustion')
+
+@Entity('Combustions')
 export class Combustion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 50, unique: true })
-  title: string;
+  @Column({ name: 'user_id' })
+  userId: number;
 
-  @Exclude()
-  @Column({ name: 'is_active', default: true })
-  isActive: boolean;
+  @Column({ length: 20 })
+  status: string;
 
-  @Column({ name: 'image_url', type: 'varchar', length: 500, nullable: true })
-  imageUrl?: string | null;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @Column({ name: 'video_url', type: 'varchar', length: 500, nullable: true })
-  videoUrl?: string | null;
+  @Column({ name: 'formed_at', type: 'timestamp', nullable: true })
+  formedAt: Date;
 
-  @Column({ length: 50, unique: true })
-  formula: string;
+  @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
+  completedAt: Date;
 
-  @Column({ name: 'specific_h2o_volume', type: 'decimal', precision: 10, scale: 4, transformer: numberTransformer })
-  specificH2oVolume: number;
+  @Column({ name: 'moderator_id', nullable: true })
+  moderatorId: number;
 
-  @Column({ name: 'specific_co2_volume', type: 'decimal', precision: 10, scale: 4, transformer: numberTransformer })
-  specificCo2Volume: number;
+  @Column('text', { name: 'sample_description', nullable: true })
+  sampleDescription: string;
 
-  @Column({ length: 50 })
-  class: string;
+  @Column({ name: 'co2_volume', type: 'decimal', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
+  co2Volume: number;
 
-  @OneToMany(() => RequestCombustion, (rc) => rc.combustion)
-  requestCombustions: RequestCombustion[];
+  @Column({ name: 'h2o_volume', type: 'decimal', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
+  h2oVolume: number;
+
+  // Связи
+  @ManyToOne(() => User, (user) => user.combustions)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'moderator_id' })
+  moderator: User;
+
+  @OneToMany(() => CompoundCombustion, (cc) => cc.combustion)
+  compoundCombustions: CompoundCombustion[];
 }

@@ -1,7 +1,7 @@
-export class RequestCombustionResponseDto {
+export class CompoundCombustionResponseDto {
     id: number;
-    requestId: number;
     combustionId: number;
+    compoundId: number;
     comment: string | null;
     amount: number | null;
 }

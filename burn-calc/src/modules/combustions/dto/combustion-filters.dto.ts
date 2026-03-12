@@ -1,13 +1,16 @@
 // src/modules/combustions/dto/combustion-filters.dto.ts
-import { IsOptional, IsString, IsBoolean } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsDateString } from 'class-validator';
 
 export class CombustionFiltersDto {
   @IsOptional()
   @IsString()
-  search?: string;
+  status?: string;
 
   @IsOptional()
-  @IsString()
-  class?: string;
+  @IsDateString()
+  formedAtFrom?: string;
+
+  @IsOptional()
+  @IsDateString()
+  formedAtTo?: string;
 }

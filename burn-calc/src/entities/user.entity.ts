@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Combustion } from './combustion.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('Users')
 export class User {
@@ -10,14 +11,17 @@ export class User {
   name: string;
 
   @Column({ length: 50 })
+  @Exclude()
   password: string;
 
-  @Column({ name: 'is_moderator' })
-  isModerator: boolean;
+  @Column({ name: 'is_expert' })
+  isExpert: boolean;
 
   @OneToMany(() => Combustion, (combustion) => combustion.user)
+  @Exclude()
   combustions: Combustion[];
 
-  @OneToMany(() => Combustion, (combustion) => combustion.moderator)
+  @OneToMany(() => Combustion, (combustion) => combustion.expert)
+  @Exclude()
   moderatedCombustions: Combustion[];
 }

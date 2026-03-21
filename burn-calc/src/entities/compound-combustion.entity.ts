@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
 import { Combustion } from './combustion.entity';
 import { Compound } from './compound.entity';
+import { Exclude } from 'class-transformer';
 
 
 const numberTransformer = {
@@ -29,6 +30,7 @@ export class CompoundCombustion {
 
   @ManyToOne(() => Combustion, (combustion) => combustion.compoundCombustions)
   @JoinColumn({ name: 'combustion_id' })
+  @Exclude()
   combustion: Combustion;
 
   @ManyToOne(() => Compound, (compound) => compound.compoundCombustions)

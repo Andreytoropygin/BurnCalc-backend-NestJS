@@ -9,8 +9,8 @@ export class AppController {
 
   @Get('/login')
   @ApiExcludeEndpoint()
-  getLogin(@Req() req: express.Request) {
-    return { message: 'Please log in' };
+  getLogin(@Req() req: express.Request, @Res() res: express.Response) {
+    return res.render('login');
   }
 
   @Get('/profile')
@@ -18,13 +18,13 @@ export class AppController {
   async getProfile(@Req() req: express.Request, @Res() res: express.Response) {
     const sessionId = req.cookies?.sessionId;
     if (!sessionId) {
-      return res.redirect('/login');
+      return res.redirect('login');
     }
 
     try {
       const user = await this.userService.validateSession(sessionId);
       if (!user) {
-        return res.redirect('/login');
+        return res.redirect('login');
       }
 
       return res.render('profile', {
@@ -32,11 +32,11 @@ export class AppController {
         user: {
           id: user.id,
           name: user.name,
-          isModerator: user.isModerator,
+          isExpert: user.isExpert,
         },
       });
     } catch (err) {
-      return res.redirect('/login');
+      return res.redirect('login');
     }
   }
 }

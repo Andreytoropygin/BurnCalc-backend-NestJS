@@ -39,7 +39,7 @@ export class CombustionService {
     const user = await this.userRepo.findById(userId);
     if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
 
-    if (!user.isModerator) throw new ForbiddenException(`Просмотреть список заявок можно только модераторам`);
+    if (!user.isExpert) throw new ForbiddenException(`Просмотреть список заявок можно только экспертам`);
 
     const combustions = await this.combustionRepo.findAll(filters);
     return combustions.map(c => {
@@ -50,7 +50,7 @@ export class CombustionService {
       return {
         id: c.id,
         userName: c.user.name,
-        moderatorName: c.moderator.name,
+        expertName: c.expert.name,
         status: c.status,
         createdAt: c.createdAt,
         formedAt: c.formedAt,
@@ -94,7 +94,7 @@ export class CombustionService {
     return { 
       id: combustion.id,
       userId: combustion.userId,
-      moderatorId: combustion.moderatorId,
+      expertId: combustion.expertId,
       status: combustion.status,
       createdAt: combustion.createdAt,
       formedAt: combustion.formedAt,
@@ -170,7 +170,7 @@ export class CombustionService {
     return {
       id: updatedCombustion.id,
       userName: updatedCombustion.user.name,
-      moderatorName: updatedCombustion.moderator?.name || null,
+      expertName: updatedCombustion.expert?.name || null,
       status: updatedCombustion.status,
       createdAt: updatedCombustion.createdAt,
       formedAt: updatedCombustion.formedAt,
@@ -187,8 +187,8 @@ export class CombustionService {
       throw new NotFoundException(`Заявка с ID ${id} не найдена`);
     }
 
-    if (combustion.moderatorId !== userId) {
-      throw new ForbiddenException('Только модератор может завершить заявку');
+    if (combustion.expertId !== userId) {
+      throw new ForbiddenException('Только эксперт может завершить заявку');
     }
 
     if (combustion.status !== 'formed') {
@@ -197,7 +197,7 @@ export class CombustionService {
 
     const updatedCombustion = await this.combustionRepo.update(id, {
       status: action === 'approve' ? 'approved' : 'rejected',
-      moderatorId: userId,
+      expertId: userId,
       completedAt: new Date(),
     });
 
@@ -208,7 +208,7 @@ export class CombustionService {
     return {
       id: updatedCombustion.id,
       userName: updatedCombustion.user.name,
-      moderatorName: updatedCombustion.moderator.name,
+      expertName: updatedCombustion.expert.name,
       status: updatedCombustion.status,
       createdAt: updatedCombustion.createdAt,
       formedAt: updatedCombustion.formedAt,

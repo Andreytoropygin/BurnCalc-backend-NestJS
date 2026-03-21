@@ -61,7 +61,7 @@ export class CompoundService {
     const user = await this.userRepo.findById(userId);
     if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
 
-    if (!user.isModerator) throw new ForbiddenException(`Создавать соединения можно только модераторам`);
+    if (!user.isExpert) throw new ForbiddenException(`Создавать соединения можно только экспертам`);
 
     const data: Partial<Compound> = {
       title: dto.title || `Compound-${Date.now()}`,

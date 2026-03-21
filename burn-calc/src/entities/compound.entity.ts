@@ -16,8 +16,8 @@ export class Compound {
   @Column({ length: 50, unique: true })
   title: string;
 
-  @Exclude()
   @Column({ name: 'is_active', default: true })
+  @Exclude()
   isActive: boolean;
 
   @Column({ name: 'image_url', type: 'varchar', length: 500, nullable: true })
@@ -39,5 +39,6 @@ export class Compound {
   class: string;
 
   @OneToMany(() => CompoundCombustion, (cc) => cc.compound)
+  @Exclude()
   compoundCombustions: CompoundCombustion[];
 }

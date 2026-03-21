@@ -33,13 +33,13 @@ export class UserController {
   @Post('logout')
   async logout(
     @Req() req: express.Request,
-    @Res() res: express.Response)
+    @Res({ passthrough: true }) res: express.Response)
   {
     const sessionId = req.cookies.sessionId;
     if (sessionId) {
       await this.service.logout(sessionId);
     }
     res.clearCookie('sessionId');
-    return res.status(200).json({ ok: true });
+    res.status(200).json({ ok: true });
   }
 }

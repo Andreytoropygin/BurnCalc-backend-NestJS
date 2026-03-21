@@ -7,10 +7,10 @@
 <body>
     <h1>Профиль</h1>
     <p>Имя: {{ user.name }}</p>
-    {{#if user.isModerator}}
-        <p>Роль: модератор</p>
+    {{#if user.isExpert}}
+        <p>Роль: эксперт</p>
     {{else}}
-        <p>Роль: пользователь</p>
+        <p>Роль: лаборант</p>
     {{/if}}
     <form action="/api/users/logout" method="POST">
         <button type="submit">Выход</button>

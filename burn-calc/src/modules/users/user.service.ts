@@ -22,7 +22,7 @@ export class UserService {
     const user = await this.repository.create({
       name: dto.name,
       password: dto.password,
-      isModerator: false,
+      isExpert: false,
     });
 
     return user as UserResponseDto;

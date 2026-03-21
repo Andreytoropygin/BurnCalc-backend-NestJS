@@ -30,8 +30,8 @@ export class Combustion {
   @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
   completedAt: Date;
 
-  @Column({ name: 'moderator_id', nullable: true })
-  moderatorId: number;
+  @Column({ name: 'expert_id', nullable: true })
+  expertId: number;
 
   @Column('text', { name: 'sample_description', nullable: true })
   sampleDescription: string;
@@ -48,8 +48,8 @@ export class Combustion {
   user: User;
 
   @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'moderator_id' })
-  moderator: User;
+  @JoinColumn({ name: 'expert_id' })
+  expert: User;
 
   @OneToMany(() => CompoundCombustion, (cc) => cc.combustion)
   compoundCombustions: CompoundCombustion[];

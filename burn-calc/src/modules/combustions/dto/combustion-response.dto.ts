@@ -2,7 +2,7 @@
 export class CombustionListResponseDto {
   id: number;
   userName: string;
-  moderatorName: string | null;
+  expertName: string | null;
   status: string;
   createdAt: Date;
   formedAt: Date | null;
@@ -16,7 +16,7 @@ export class CombustionListResponseDto {
 export class CombustionSingleResponseDto {
   id: number;
   userId: number;
-  moderatorId: number;
+  expertId: number;
   status: string;
   createdAt: Date;
   formedAt: Date | null;

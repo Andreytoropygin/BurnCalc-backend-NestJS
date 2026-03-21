@@ -9,29 +9,37 @@ import {
   UseInterceptors,
   UploadedFiles,
   Body,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { CompoundService } from '../services/compound.service';
-import { CompoundResponseDto } from '../dto/compound-response.dto';
-import { CompoundFiltersDto } from '../dto/compound-filters.dto';
-import { CreateCompoundDto } from '../dto/create-compound.dto';
+import { CompoundService } from './compound.service';
+import { CompoundResponseDto } from './dto/compound-response.dto';
+import { CompoundFiltersDto } from './dto/compound-filters.dto';
+import { CreateCompoundDto } from './dto/create-compound.dto';
+import { SessionGuard } from 'src/modules/users/session.guard';
 
 @Controller('compounds')
 export class CompoundController {
   constructor(private service: CompoundService) {}
 
   @Get()
-  async findAll(@Query() filters: CompoundFiltersDto): Promise<CompoundResponseDto[]> {
+  async findAll(
+    @Query() filters: CompoundFiltersDto
+  ): Promise<CompoundResponseDto[]> {
     return this.service.findAll(filters);
   }
 
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number): Promise<CompoundResponseDto> {
+  async findById(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<CompoundResponseDto> {
     return this.service.findById(id);
   }
 
   @Post()
+  @UseGuards(SessionGuard)
   @UseInterceptors(
     FilesInterceptor('files', 2, {
       storage: memoryStorage(),
@@ -40,11 +48,12 @@ export class CompoundController {
   )
   async create(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body() dto: CreateCompoundDto
+    @Body() dto: CreateCompoundDto,
+    @Req() req: Request & { session: { userId: number } }
   ): Promise<CompoundResponseDto> {
     const imageFile = files?.find(f => f.mimetype.startsWith('image/'));
     const videoFile = files?.find(f => f.mimetype.startsWith('video/'));
 
-    return this.service.create(dto, imageFile, videoFile);
+    return this.service.create(dto, req.session.userId, imageFile, videoFile);
   }
 }

@@ -2,7 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CompoundCombustion } from '../../../entities/compound-combustion.entity';
+import { CompoundCombustion } from 'src/entities/compound-combustion.entity';
 
 @Injectable()
 export class CompoundCombustionRepository {

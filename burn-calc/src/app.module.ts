@@ -2,14 +2,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DatabaseModule } from './common/database.module';
+import { AppController } from './app.controller';
+import { DatabaseModule } from './modules/database/database.module';
+import { MinioModule } from './modules/minio/minio.module';
+import { SessionModule } from './modules/session/session.module';
 
 // Импорт модулей доменов
 import { CompoundsModule } from './modules/compounds/compounds.module';
 import { CombustionsModule } from './modules/combustions/combustions.module';
 import { CompoundCombustionsModule } from './modules/compound-combustions/compound-combustions.module';
 import { UsersModule } from './modules/users/users.module';
-import { MinioModule } from './common/minio/minio.module';
 
 @Module({
   imports: [
@@ -36,13 +38,16 @@ import { MinioModule } from './common/minio/minio.module';
       inject: [ConfigService],
     }),
 
-    // Модули доменов
     MinioModule,
     DatabaseModule,
+    SessionModule,
+
+    // Модули доменов
     CompoundsModule,
     CombustionsModule,
     CompoundCombustionsModule,
     UsersModule,
-  ]
+  ],
+  controllers: [AppController]
 })
 export class AppModule {}

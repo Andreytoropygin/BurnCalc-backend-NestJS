@@ -3,42 +3,45 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
+  ForbiddenException
 } from '@nestjs/common';
-import { CombustionRepository } from '../repositories/combustion.repository';
-import { CompoundCombustionRepository } from '../../compound-combustions/repositories/compound-combustion.repository';
-import { SingletonUser } from 'src/common/singleton-user.service';
-import { CombustionListResponseDto, CombustionSingleResponseDto, CompoundInCombustionDto } from '../dto/combustion-response.dto';
-import { CombustionFiltersDto } from '../dto/combustion-filters.dto';
-import { UpdateCombustionDto } from '../dto/update-combustion.dto';
-import { CombustionDraftBriefDto } from '../dto/combustion-draft-brief.dto';
-import { MinioService } from 'src/common/minio/minio.service';
+import { CombustionRepository } from './combustion.repository';
+import { CompoundCombustionRepository } from 'src/modules/compound-combustions/compound-combustion.repository';
+import { UserRepository } from 'src/modules/users/user.repository';
+import { CombustionListResponseDto, CombustionSingleResponseDto, CompoundInCombustionDto } from './dto/combustion-response.dto';
+import { CombustionFiltersDto } from './dto/combustion-filters.dto';
+import { UpdateCombustionDto } from './dto/update-combustion.dto';
+import { CombustionDraftBriefDto } from './dto/combustion-draft-brief.dto';
+import { MinioService } from 'src/modules/minio/minio.service';
 
 @Injectable()
 export class CombustionService {
-  private readonly singletonUser = SingletonUser.getInstance();
-
   constructor(
     private combustionRepo: CombustionRepository,
     private ccRepo: CompoundCombustionRepository,
+    private userRepo: UserRepository,
     private minioService: MinioService
   ) {}
 
-  async getDraftBrief(): Promise<CombustionDraftBriefDto> {
-    const creatorId = this.singletonUser.getCreatorId();
-    const draft = await this.combustionRepo.findDraftByUserId(creatorId);
+  async getDraftBrief(userId: number): Promise<CombustionDraftBriefDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
 
-    if (!draft) {
-      return { combustionId: null, compoundsCount: 0 } as CombustionDraftBriefDto;
-    }
+    const draft = await this.combustionRepo.findDraftByUserId(userId);
+
+    if (!draft) return { combustionId: null, compoundsCount: 0 } as CombustionDraftBriefDto;
 
     const compounds = await this.ccRepo.findByCombustionId(draft.id);
     return { combustionId: draft.id, compoundsCount: compounds.length };
   }
 
-  async findAll(filters?: CombustionFiltersDto): Promise<CombustionListResponseDto[]> {
-    const combustions = await this.combustionRepo.findAll(filters);
+  async findAll(userId: number, filters?: CombustionFiltersDto): Promise<CombustionListResponseDto[]> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
 
+    if (!user.isModerator) throw new ForbiddenException(`Просмотреть список заявок можно только модераторам`);
+
+    const combustions = await this.combustionRepo.findAll(filters);
     return combustions.map(c => {
       const resultsCount = c.compoundCombustions?.filter(
         cc => cc.amount !== null && cc.amount !== undefined,
@@ -60,11 +63,14 @@ export class CombustionService {
     }) as CombustionListResponseDto[];
   }
 
-  async findById(id: number): Promise<CombustionSingleResponseDto> {
+  async findById(id: number, userId: number): Promise<CombustionSingleResponseDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
     const combustion = await this.combustionRepo.findById(id);
-    if (!combustion || combustion.status === 'deleted') {
-      throw new NotFoundException(`Заявка с ID ${id} не найдена`);
-    }
+    if (!combustion || combustion.status === 'deleted') throw new NotFoundException(`Заявка с ID ${id} не найдена`);
+
+    if (combustion.userId !== userId) throw new ForbiddenException(`Просмотреть заявку может только создатель`)
 
     let compounds: CompoundInCombustionDto[] =
       combustion.compoundCombustions?.map(cc => ({
@@ -100,11 +106,13 @@ export class CombustionService {
      } as CombustionSingleResponseDto;
   }
 
-  async update(dto: UpdateCombustionDto): Promise<CombustionSingleResponseDto> {
-    const creatorId = this.singletonUser.getCreatorId();
-    const combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+  async update(dto: UpdateCombustionDto, userId: number): Promise<CombustionSingleResponseDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+    
+    const combustion = await this.combustionRepo.findDraftByUserId(userId);
     if (!combustion) {
-      throw new NotFoundException(`Черновик пользователя с ID ${creatorId} не найден`);
+      throw new NotFoundException(`Черновик пользователя с ID ${userId} не найден`);
     }
 
     const updatedCombustion = await this.combustionRepo.update(combustion.id, dto)
@@ -117,11 +125,13 @@ export class CombustionService {
     } as CombustionSingleResponseDto;
   }
 
-  async form(): Promise<CombustionListResponseDto> {
-    const creatorId = this.singletonUser.getCreatorId();
-    let combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+  async form(userId: number): Promise<CombustionListResponseDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
+    let combustion = await this.combustionRepo.findDraftByUserId(userId);
     if (!combustion) {
-      throw new NotFoundException(`Черновик пользователя с ID ${creatorId} не найден`);
+      throw new NotFoundException(`Черновик пользователя с ID ${userId} не найден`);
     }
 
     const compoundCombustions = combustion.compoundCombustions;
@@ -150,8 +160,7 @@ export class CombustionService {
 
     const updatedCombustion = await this.combustionRepo.update(combustion.id, {
       status: 'formed',
-      formedAt: new Date(),
-      moderatorId: this.singletonUser.getModeratorId()
+      formedAt: new Date()
     });
    
     const resultsCount = updatedCombustion.compoundCombustions?.filter(
@@ -169,23 +178,26 @@ export class CombustionService {
     } as CombustionListResponseDto;
   }
 
-  async complete(id: number, action: 'approve' | 'reject'): Promise<CombustionListResponseDto> {
+  async complete(id: number, action: 'approve' | 'reject', userId: number): Promise<CombustionListResponseDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
     const combustion = await this.combustionRepo.findById(id);
     if (!combustion || combustion.status === 'deleted') {
       throw new NotFoundException(`Заявка с ID ${id} не найдена`);
     }
 
-    if (combustion.moderatorId !== this.singletonUser.getModeratorId()) {
-      throw new ForbiddenException('Только модератор может подтвердить/отклонить заявку');
+    if (combustion.moderatorId !== userId) {
+      throw new ForbiddenException('Только модератор может завершить заявку');
     }
 
     if (combustion.status !== 'formed') {
-      throw new BadRequestException('Можно подтвердить/отклонить только сформированную заявку');
+      throw new BadRequestException('Можно завершить только сформированную заявку');
     }
 
     const updatedCombustion = await this.combustionRepo.update(id, {
       status: action === 'approve' ? 'approved' : 'rejected',
-      moderatorId: this.singletonUser.getModeratorId(),
+      moderatorId: userId,
       completedAt: new Date(),
     });
 
@@ -205,11 +217,13 @@ export class CombustionService {
     } as CombustionListResponseDto;
   }
 
-  async remove(): Promise<{ message: string }> {
-    const creatorId = this.singletonUser.getCreatorId();
-    const combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+  async remove(userId: number): Promise<{ message: string }> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
+    const combustion = await this.combustionRepo.findDraftByUserId(userId);
     if (!combustion) {
-      throw new NotFoundException(`Черновик пользователя с ID ${creatorId} не найден`);
+      throw new NotFoundException(`Черновик пользователя с ID ${userId} не найден`);
     }
 
     await this.combustionRepo.softDelete(combustion.id);

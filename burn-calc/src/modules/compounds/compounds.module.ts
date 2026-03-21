@@ -1,13 +1,14 @@
 // src/modules/compounds/compounds.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Compound } from '../../entities/compound.entity';
-import { CompoundController } from './controllers/compound.controller';
-import { CompoundService } from './services/compound.service';
-import { CompoundRepository } from './repositories/compound.repository';
+import { Compound } from 'src/entities/compound.entity';
+import { CompoundController } from './compound.controller';
+import { CompoundService } from './compound.service';
+import { CompoundRepository } from './compound.repository';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Compound])],
+  imports: [TypeOrmModule.forFeature([Compound]), UsersModule],
   controllers: [CompoundController],
   providers: [CompoundService, CompoundRepository],
   exports: [CompoundService],

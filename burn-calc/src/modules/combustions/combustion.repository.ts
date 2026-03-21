@@ -2,8 +2,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Combustion } from '../../../entities/combustion.entity';
-import { CombustionFiltersDto } from '../dto/combustion-filters.dto';
+import { Combustion } from 'src/entities/combustion.entity';
+import { CombustionFiltersDto } from './dto/combustion-filters.dto';
 
 @Injectable()
 export class CombustionRepository {

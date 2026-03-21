@@ -1,16 +1,18 @@
 // src/modules/compounds/services/compound.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CompoundRepository } from '../repositories/compound.repository';
-import { MinioService } from '../../../common/minio/minio.service';
-import { CompoundResponseDto } from '../dto/compound-response.dto';
-import { CreateCompoundDto } from '../dto/create-compound.dto';
-import { CompoundFiltersDto } from '../dto/compound-filters.dto';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { CompoundRepository } from './compound.repository';
+import { UserRepository } from '../users/user.repository';
+import { MinioService } from 'src/modules/minio/minio.service';
+import { CompoundResponseDto } from './dto/compound-response.dto';
+import { CreateCompoundDto } from './dto/create-compound.dto';
+import { CompoundFiltersDto } from './dto/compound-filters.dto';
 import { Compound } from 'src/entities/compound.entity';
 
 @Injectable()
 export class CompoundService {
   constructor(
     private repository: CompoundRepository,
+    private userRepo: UserRepository,
     private minioService: MinioService,
   ) {}
 
@@ -52,9 +54,15 @@ export class CompoundService {
 
   async create(
     dto: CreateCompoundDto,
+    userId: number,
     imageFile?: Express.Multer.File,
-    videoFile?: Express.Multer.File,
+    videoFile?: Express.Multer.File
   ): Promise<CompoundResponseDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
+    if (!user.isModerator) throw new ForbiddenException(`Создавать соединения можно только модераторам`);
+
     const data: Partial<Compound> = {
       title: dto.title || `Compound-${Date.now()}`,
       formula: dto.formula || `formula-${Date.now()}`,

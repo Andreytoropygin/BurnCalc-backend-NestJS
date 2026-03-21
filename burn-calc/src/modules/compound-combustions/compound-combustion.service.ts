@@ -5,38 +5,40 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CompoundCombustionRepository } from '../repositories/compound-combustion.repository';
-import { CombustionRepository } from '../../combustions/repositories/combustion.repository';
-import { CompoundRepository } from 'src/modules/compounds/repositories/compound.repository';
-import { SingletonUser } from 'src/common/singleton-user.service';
-import { UpdateCompoundCombustionDto } from '../dto/update-compound-combustion.dto';
-import { CompoundCombustionResponseDto } from '../dto/compound-combustion-response.dto';
+import { CompoundCombustionRepository } from './compound-combustion.repository';
+import { CombustionRepository } from 'src/modules/combustions/combustion.repository';
+import { CompoundRepository } from 'src/modules/compounds/compound.repository';
+import { UserRepository } from 'src/modules/users/user.repository';
+import { UpdateCompoundCombustionDto } from './dto/update-compound-combustion.dto';
+import { CompoundCombustionResponseDto } from './dto/compound-combustion-response.dto';
 
 @Injectable()
 export class CompoundCombustionService {
-  private readonly singletonUser = SingletonUser.getInstance();
-
   constructor(
     private ccRepo: CompoundCombustionRepository,
     private combustionRepo: CombustionRepository,
-    private compoundRepo: CompoundRepository
+    private compoundRepo: CompoundRepository,
+    private userRepo: UserRepository
   ) {}
 
   async addToCombustion(
     compoundId: number,
+    userId: number
   ): Promise<CompoundCombustionResponseDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
     const compound = this.compoundRepo.findById(compoundId);
     if (!compound) {
       throw new NotFoundException(`Соединение с ID: ${compoundId} не найдено`)
     }
 
-    const creatorId = this.singletonUser.getCreatorId();
-    let combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+    let combustion = await this.combustionRepo.findDraftByUserId(userId);
 
     if (!combustion) {
        combustion = await this.combustionRepo.create({
         status: 'draft',
-        userId: creatorId
+        userId: userId
        })
     }
 
@@ -46,12 +48,12 @@ export class CompoundCombustionService {
 
     const existing = await this.ccRepo.findByCombustionAndCompound(combustion.id, compoundId);
     if (existing) {
-      throw new BadRequestException('Услуга уже добавлена в заявку');
+      throw new BadRequestException('Услуга уже добавлена в черновик');
     }
 
     const compoundCombustion = await this.ccRepo.create({ combustionId: combustion.id, compoundId: compoundId}) 
     if (!compoundCombustion) {
-      throw new InternalServerErrorException('Не удалось добавить соединение');
+      throw new InternalServerErrorException('Не удалось добавить соединение в черновик');
     }
 
     return compoundCombustion as CompoundCombustionResponseDto;
@@ -60,20 +62,23 @@ export class CompoundCombustionService {
   async updateInCombustion(
     compoundId: number,
     dto: UpdateCompoundCombustionDto,
+    userId: number
   ): Promise<CompoundCombustionResponseDto> {
-    const creatorId = this.singletonUser.getCreatorId();
-    const combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
+    const combustion = await this.combustionRepo.findDraftByUserId(userId);
     if (!combustion) {
       throw new NotFoundException(`Черновик не найден`);
     }
     const compoundCombustion = await this.ccRepo.findByCombustionAndCompound(combustion.id, compoundId)
     if (!compoundCombustion) {
-      throw new BadRequestException('Можно редактировать только добавленные соединения');
+      throw new BadRequestException(`Cоединение с ID: ${compoundId} не добавлено в черновик`);
     }
 
     const updatedCC = await this.ccRepo.update(combustion.id, compoundId, dto);
     if (!updatedCC) {
-      throw new InternalServerErrorException('Не удалось обновить соединение в заявке')
+      throw new InternalServerErrorException('Не удалось обновить соединение в черновике')
     }
 
     return updatedCC as CompoundCombustionResponseDto;
@@ -81,19 +86,22 @@ export class CompoundCombustionService {
 
   async removeFromCombustion(
     compoundId: number,
+    userId: number
   ): Promise<{ message: string }> {
-    const creatorId = this.singletonUser.getCreatorId();
-    const combustion = await this.combustionRepo.findDraftByUserId(creatorId);
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
+
+    const combustion = await this.combustionRepo.findDraftByUserId(userId);
     if (!combustion) {
       throw new NotFoundException(`Черновик не найден`);
     }
     const compoundCombustion = await this.ccRepo.findByCombustionAndCompound(combustion.id, compoundId)
     if (!compoundCombustion) {
-      throw new NotFoundException(`Соединение не добавлено в заявку`);
+      throw new BadRequestException(`Соединение с ID: ${compoundId} не добавлено в черновик`);
     }
 
     await this.ccRepo.delete(combustion.id, compoundId);
 
-    return { message: 'Услуга удалена из заявки' };
+    return { message: 'Соединение удалено из черновика' };
   }
 }

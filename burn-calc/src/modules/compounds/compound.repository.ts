@@ -2,8 +2,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Compound } from '../../../entities/compound.entity';
-import { CompoundFiltersDto } from '../dto/compound-filters.dto';
+import { Compound } from 'src/entities/compound.entity';
+import { CompoundFiltersDto } from './dto/compound-filters.dto';
 
 @Injectable()
 export class CompoundRepository {

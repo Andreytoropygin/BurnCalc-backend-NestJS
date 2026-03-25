@@ -25,7 +25,7 @@ export class CompoundCombustion {
   @Column('text', { nullable: true })
   comment: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
+  @Column({ type: 'numeric', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
   amount: number;
 
   @ManyToOne(() => Combustion, (combustion) => combustion.compoundCombustions)

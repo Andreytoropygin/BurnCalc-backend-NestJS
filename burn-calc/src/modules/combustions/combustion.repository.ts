@@ -15,8 +15,8 @@ export class CombustionRepository {
   async findAll(filters?: CombustionFiltersDto): Promise<Combustion[]> {
     let query = this.repository
       .createQueryBuilder('combustions')
-      .leftJoinAndSelect('combustions.user', 'user')
-      .leftJoinAndSelect('combustions.moderator', 'moderator')
+      .leftJoinAndSelect('combustions.technician', 'technician')
+      .leftJoinAndSelect('combustions.expert', 'expert')
       .leftJoinAndSelect('combustions.compoundCombustions', 'compoundCombustions')
       .where('combustions.status != :deleted', { deleted: 'deleted' })
       .andWhere('combustions.status != :draft', { draft: 'draft' });
@@ -44,13 +44,13 @@ export class CombustionRepository {
   async findById(id: number): Promise<Combustion | null> {
     return await this.repository.findOne({
       where: { id },
-      relations: ['user', 'moderator', 'compoundCombustions', 'compoundCombustions.compound'],
+      relations: ['technician', 'expert', 'compoundCombustions', 'compoundCombustions.compound'],
     });
   }
 
   async findDraftByUserId(userId: number): Promise<Combustion | null> {
     return await this.repository.findOne({
-      where: { userId, status: 'draft' },
+      where: { technicianId: userId, status: 'draft' },
       relations: ['compoundCombustions', 'compoundCombustions.compound'],
     });
   }

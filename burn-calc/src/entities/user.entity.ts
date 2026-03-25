@@ -17,7 +17,7 @@ export class User {
   @Column({ name: 'is_expert' })
   isExpert: boolean;
 
-  @OneToMany(() => Combustion, (combustion) => combustion.user)
+  @OneToMany(() => Combustion, (combustion) => combustion.technician)
   @Exclude()
   combustions: Combustion[];
 

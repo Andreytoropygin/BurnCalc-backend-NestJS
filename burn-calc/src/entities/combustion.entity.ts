@@ -15,8 +15,8 @@ export class Combustion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id' })
-  userId: number;
+  @Column({ name: 'technician_id' })
+  technicianId: number;
 
   @Column({ length: 20 })
   status: string;
@@ -36,16 +36,16 @@ export class Combustion {
   @Column('text', { name: 'sample_description', nullable: true })
   sampleDescription: string;
 
-  @Column({ name: 'co2_volume', type: 'decimal', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
+  @Column({ name: 'co2_volume', type: 'numeric', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
   co2Volume: number;
 
-  @Column({ name: 'h2o_volume', type: 'decimal', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
+  @Column({ name: 'h2o_volume', type: 'numeric', precision: 10, scale: 4, nullable: true, transformer: numberTransformer })
   h2oVolume: number;
 
   // Связи
-  @ManyToOne(() => User, (user) => user.combustions)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  @ManyToOne(() => User, (technician) => technician.combustions)
+  @JoinColumn({ name: 'technician_id' })
+  technician: User;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'expert_id' })

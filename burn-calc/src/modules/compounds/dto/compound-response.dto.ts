@@ -1,5 +1,7 @@
 // src/modules/compounds/dto/compound-response.dto.ts
 
+import { Exclude } from "class-transformer";
+
 export class CompoundResponseDto {
   id: number;
   title: string;
@@ -9,4 +11,6 @@ export class CompoundResponseDto {
   specificH2oVolume: number;
   specificCo2Volume: number;
   class: string;
+  @Exclude()
+  isActive: boolean;
 }

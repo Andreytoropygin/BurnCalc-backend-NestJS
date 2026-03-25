@@ -39,9 +39,8 @@ export class CombustionService {
     const user = await this.userRepo.findById(userId);
     if (!user) throw new BadRequestException(`Пользователь с ID: ${userId} не найден`);
 
-    if (!user.isExpert) throw new ForbiddenException(`Просмотреть список заявок можно только экспертам`);
+    const combustions = (await this.combustionRepo.findAll(filters)).filter(c => (c.technicianId === userId) || user.isExpert);
 
-    const combustions = await this.combustionRepo.findAll(filters);
     return combustions.map(c => {
       const resultsCount = c.compoundCombustions?.filter(
         cc => cc.amount !== null && cc.amount !== undefined,
@@ -49,8 +48,8 @@ export class CombustionService {
 
       return {
         id: c.id,
-        userName: c.user.name,
-        expertName: c.expert.name,
+        technicianName: c.technician.name,
+        expertName: c.expert ? c.expert.name : null,
         status: c.status,
         createdAt: c.createdAt,
         formedAt: c.formedAt,
@@ -70,7 +69,7 @@ export class CombustionService {
     const combustion = await this.combustionRepo.findById(id);
     if (!combustion || combustion.status === 'deleted') throw new NotFoundException(`Заявка с ID ${id} не найдена`);
 
-    if (combustion.userId !== userId) throw new ForbiddenException(`Просмотреть заявку может только создатель`)
+    if (combustion.technicianId !== userId) throw new ForbiddenException(`Просмотреть заявку может только создатель`)
 
     let compounds: CompoundInCombustionDto[] =
       combustion.compoundCombustions?.map(cc => ({
@@ -93,7 +92,7 @@ export class CombustionService {
 
     return { 
       id: combustion.id,
-      userId: combustion.userId,
+      technicianId: combustion.technicianId,
       expertId: combustion.expertId,
       status: combustion.status,
       createdAt: combustion.createdAt,
@@ -169,7 +168,7 @@ export class CombustionService {
 
     return {
       id: updatedCombustion.id,
-      userName: updatedCombustion.user.name,
+      technicianName: updatedCombustion.technician.name,
       expertName: updatedCombustion.expert?.name || null,
       status: updatedCombustion.status,
       createdAt: updatedCombustion.createdAt,
@@ -187,7 +186,7 @@ export class CombustionService {
       throw new NotFoundException(`Заявка с ID ${id} не найдена`);
     }
 
-    if (combustion.expertId !== userId) {
+    if (!user.isExpert) {
       throw new ForbiddenException('Только эксперт может завершить заявку');
     }
 
@@ -207,7 +206,7 @@ export class CombustionService {
 
     return {
       id: updatedCombustion.id,
-      userName: updatedCombustion.user.name,
+      technicianName: updatedCombustion.technician.name,
       expertName: updatedCombustion.expert.name,
       status: updatedCombustion.status,
       createdAt: updatedCombustion.createdAt,

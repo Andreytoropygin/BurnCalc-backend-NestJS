@@ -38,7 +38,7 @@ export class CompoundCombustionService {
     if (!combustion) {
        combustion = await this.combustionRepo.create({
         status: 'draft',
-        userId: userId
+        technicianId: userId
        })
     }
 

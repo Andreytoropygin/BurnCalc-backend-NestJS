@@ -1,7 +1,7 @@
 // src/modules/combustions/dto/combustion-response.dto.ts
 export class CombustionListResponseDto {
   id: number;
-  userName: string;
+  technicianName: string;
   expertName: string | null;
   status: string;
   createdAt: Date;
@@ -10,13 +10,13 @@ export class CombustionListResponseDto {
   h2oVolume: number | null;
   co2Volume: number | null;
   sampleDescription: string | null;
-  resultsCount?: number; // количество ненулевых результатов
+  resultsCount: number; // количество ненулевых результатов
 }
 
 export class CombustionSingleResponseDto {
   id: number;
-  userId: number;
-  expertId: number;
+  technicianId: number;
+  expertId: number | null;
   status: string;
   createdAt: Date;
   formedAt: Date | null;

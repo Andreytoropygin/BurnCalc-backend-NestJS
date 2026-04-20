@@ -67,6 +67,7 @@ export class CompoundService {
       title: dto.title || `Compound-${Date.now()}`,
       formula: dto.formula || `formula-${Date.now()}`,
       class: dto.class || 'organic',
+      description: dto.description || 'missing description',
       specificH2oVolume: dto.specificH2oVolume || 0,
       specificCo2Volume: dto.specificCo2Volume || 0,
       isActive: true,

@@ -29,6 +29,9 @@ export class Compound {
   @Column({ length: 50, unique: true })
   formula: string;
 
+  @Column({ length: 150})
+  description: string;
+
   @Column({ name: 'specific_h2o_volume', type: 'numeric', precision: 10, scale: 4, transformer: numberTransformer })
   specificH2oVolume: number;
 

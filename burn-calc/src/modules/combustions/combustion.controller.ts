@@ -17,18 +17,26 @@ import { CombustionFiltersDto } from './dto/combustion-filters.dto';
 import { UpdateCombustionDto } from './dto/update-combustion.dto';
 import { CombustionDraftBriefDto } from './dto/combustion-draft-brief.dto';
 import { CompleteCombustionDto } from './dto/complete-combustion.dto';
-import { SessionGuard } from 'src/modules/users/session.guard';
+import { SessionGuard, SoftSessionGuard } from 'src/modules/users/session.guard';
 
 @Controller('combustions')
 export class CombustionController {
   constructor(private service: CombustionService) {}
 
   @Get('draft-brief')
-  @UseGuards(SessionGuard)
-  async getCartIcon(
-    @Req() req: Request & { session: { userId: number } }
+  @UseGuards(SoftSessionGuard)
+  async getCombustionIcon(
+    @Req() req: Request & { session?: { userId?: number } }
   ): Promise<CombustionDraftBriefDto> {
-    return this.service.getDraftBrief(req.session.userId);
+    const userId = req.session?.userId;
+    if (userId) {
+      return this.service.getDraftBrief(userId);
+    } else {
+      return {
+        combustionId: null,
+        compoundsCount: 0,
+      };
+    }
   }
 
   @Get()

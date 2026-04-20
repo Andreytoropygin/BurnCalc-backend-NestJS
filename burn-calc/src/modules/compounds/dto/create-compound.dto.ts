@@ -15,6 +15,10 @@ export class CreateCompoundDto {
   @IsOptional()
   class?: string;
 
+  @IsString()
+  @IsOptional()
+  description?: string;
+
   @Type(() => Number)
   @IsNumber()
   @Min(0)

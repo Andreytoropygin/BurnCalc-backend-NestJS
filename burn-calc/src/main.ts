@@ -23,7 +23,7 @@ async function bootstrap() {
   .addCookieAuth('sessionId')
   .build();
 
-  // Глобальный префикс API - все маршруты будут начинаться с /api
+  // Глобальный префикс
   app.setGlobalPrefix('api');
 
   // Глобальная валидация DTO
@@ -41,7 +41,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   
-  await app.listen(3000);
-  console.log('Application running on: http://localhost:3000/api');
+  const port = process.env.PORT || 3000;
+  
+  await app.listen(port);
+  console.log(`Application running on: http://localhost:${port}/api`);
 }
 bootstrap();

@@ -8,7 +8,8 @@ export class CompoundResponseDto {
   imageUrl: string | null;
   videoUrl: string | null;
   formula: string;
-  description: string;
+  description_eng: string;
+  description_rus: string;
   specificH2oVolume: number;
   specificCo2Volume: number;
   class: string;

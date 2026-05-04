@@ -30,7 +30,10 @@ export class Compound {
   formula: string;
 
   @Column({ length: 150})
-  description: string;
+  description_eng: string;
+
+  @Column({ length: 150})
+  description_rus: string;
 
   @Column({ name: 'specific_h2o_volume', type: 'numeric', precision: 10, scale: 4, transformer: numberTransformer })
   specificH2oVolume: number;

@@ -17,7 +17,11 @@ export class CreateCompoundDto {
 
   @IsString()
   @IsOptional()
-  description?: string;
+  description_eng?: string;
+
+  @IsString()
+  @IsOptional()
+  description_rus?: string;
 
   @Type(() => Number)
   @IsNumber()

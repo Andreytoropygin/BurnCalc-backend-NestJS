@@ -18,12 +18,15 @@ import { UpdateCombustionDto } from './dto/update-combustion.dto';
 import { CombustionDraftBriefDto } from './dto/combustion-draft-brief.dto';
 import { CompleteCombustionDto } from './dto/complete-combustion.dto';
 import { SessionGuard, SoftSessionGuard } from 'src/modules/users/session.guard';
+import { ApiFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('combustions')
 @Controller('combustions')
 export class CombustionController {
   constructor(private service: CombustionService) {}
 
   @Get('draft-brief')
+  @ApiFoundResponse({ type: CombustionDraftBriefDto })
   @UseGuards(SoftSessionGuard)
   async getCombustionIcon(
     @Req() req: Request & { session?: { userId?: number } }
@@ -40,6 +43,7 @@ export class CombustionController {
   }
 
   @Get()
+  @ApiFoundResponse({ type: [CombustionListResponseDto] })
   @UseGuards(SessionGuard)
   async findAll(
     @Query() filters: CombustionFiltersDto,
@@ -49,6 +53,7 @@ export class CombustionController {
   }
 
   @Get(':id')
+  @ApiFoundResponse({ type: CombustionSingleResponseDto })
   @UseGuards(SessionGuard)
   async findById(
     @Param('id', ParseIntPipe) id: number,
@@ -58,6 +63,7 @@ export class CombustionController {
   }
 
   @Put()
+  @ApiOkResponse({ type: CombustionSingleResponseDto })
   @UseGuards(SessionGuard)
   async update(
     @Body() dto: UpdateCombustionDto,
@@ -67,6 +73,7 @@ export class CombustionController {
   }
 
   @Put('form')
+  @ApiOkResponse({ type: CombustionListResponseDto })
   @UseGuards(SessionGuard)
   async form(
     @Req() req: Request & { session: { userId: number } }
@@ -75,6 +82,7 @@ export class CombustionController {
   }
 
   @Put(':id/complete')
+  @ApiOkResponse({ type: CombustionListResponseDto })
   @UseGuards(SessionGuard)
   async complete(
     @Param('id', ParseIntPipe) id: number,
@@ -85,6 +93,7 @@ export class CombustionController {
   }
 
   @Delete()
+  @ApiOkResponse()
   @UseGuards(SessionGuard)
   async remove(
     @Req() req: Request & { session: { userId: number } }

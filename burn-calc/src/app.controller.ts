@@ -30,7 +30,6 @@ export class AppController {
       return res.render('profile', {
         title: 'Profile',
         user: {
-          id: user.id,
           name: user.name,
           isExpert: user.isExpert,
         },

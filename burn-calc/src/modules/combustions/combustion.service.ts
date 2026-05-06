@@ -69,7 +69,7 @@ export class CombustionService {
     const combustion = await this.combustionRepo.findById(id);
     if (!combustion || combustion.status === 'deleted') throw new NotFoundException(`Заявка с ID ${id} не найдена`);
 
-    if (combustion.technicianId !== userId) throw new ForbiddenException(`Просмотреть заявку может только создатель`)
+    if (combustion.technicianId !== userId && !user.isExpert) throw new ForbiddenException(`Просмотреть заявку может только создатель или эксперт`)
 
     let compounds: CompoundInCombustionDto[] =
       combustion.compoundCombustions?.map(cc => ({

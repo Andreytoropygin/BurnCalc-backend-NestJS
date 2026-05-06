@@ -19,12 +19,15 @@ import { CompoundResponseDto } from './dto/compound-response.dto';
 import { CompoundFiltersDto } from './dto/compound-filters.dto';
 import { CreateCompoundDto } from './dto/create-compound.dto';
 import { SessionGuard } from 'src/modules/users/session.guard';
+import { ApiCreatedResponse, ApiFoundResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('compounds')
 @Controller('compounds')
 export class CompoundController {
   constructor(private service: CompoundService) {}
 
   @Get()
+  @ApiFoundResponse({type: [CompoundResponseDto]})
   async findAll(
     @Query() filters: CompoundFiltersDto
   ): Promise<CompoundResponseDto[]> {
@@ -32,6 +35,7 @@ export class CompoundController {
   }
 
   @Get(':id')
+  @ApiFoundResponse({type: CompoundResponseDto})
   async findById(
     @Param('id', ParseIntPipe) id: number
   ): Promise<CompoundResponseDto> {
@@ -39,6 +43,7 @@ export class CompoundController {
   }
 
   @Post()
+  @ApiCreatedResponse({type: CompoundResponseDto})
   @UseGuards(SessionGuard)
   @UseInterceptors(
     FilesInterceptor('files', 2, {

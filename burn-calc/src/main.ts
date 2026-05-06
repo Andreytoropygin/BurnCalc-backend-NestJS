@@ -18,7 +18,7 @@ async function bootstrap() {
   app.setViewEngine('hbs');
 
   const config = new DocumentBuilder()
-  .setTitle('Lab4 API')
+  .setTitle('BurnCalc API')
   .setDescription('Сессионная аутентификация. После login скопируйте sessionId из Set-Cookie и вставьте в Authorize → Cookie.')
   .addCookieAuth('sessionId')
   .build();

@@ -31,7 +31,7 @@ export class UserService {
   async login(dto: UserRequestDto): Promise<{sessionId: string, user: UserResponseDto}> {
     const user = await this.repository.findByName(dto.name);
     if (!user || user.password !== dto.password) {
-      throw new UnauthorizedException('Неверное имя или пароль');
+      throw new UnauthorizedException('Неверные имя или пароль');
     }
 
     const sessionId = uuidv4();

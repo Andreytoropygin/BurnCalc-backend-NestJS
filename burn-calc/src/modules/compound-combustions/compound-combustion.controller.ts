@@ -14,12 +14,15 @@ import { CompoundCombustionService } from './compound-combustion.service';
 import { UpdateCompoundCombustionDto } from './dto/update-compound-combustion.dto';
 import { CompoundCombustionResponseDto } from './dto/compound-combustion-response.dto';
 import { SessionGuard } from 'src/modules/users/session.guard';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('compounds-combustions')
 @Controller('compounds-combustions')
 export class CompoundCombustionController {
   constructor(private service: CompoundCombustionService) {}
 
   @Post(':compoundId')
+  @ApiOkResponse({type: CompoundCombustionResponseDto})
   @UseGuards(SessionGuard)
   async addToCombustion(
     @Param('compoundId', ParseIntPipe) compoundId: number,
@@ -29,6 +32,7 @@ export class CompoundCombustionController {
   }
 
   @Put(':compoundId')
+  @ApiOkResponse({type: CompoundCombustionResponseDto})
   @UseGuards(SessionGuard)
   async updateInCombustion(
     @Param('compoundId', ParseIntPipe) compoundId: number,
@@ -39,6 +43,7 @@ export class CompoundCombustionController {
   }
 
   @Delete(':compoundId')
+  @ApiOkResponse()
   @UseGuards(SessionGuard)
   async removeFromCombustion(
     @Param('compoundId', ParseIntPipe) compoundId: number,

@@ -20,9 +20,8 @@ export class CombustionRepository {
       .leftJoinAndSelect('combustions.compoundCombustions', 'compoundCombustions')
       .where('combustions.status != :deleted', { deleted: 'deleted' })
       .andWhere('combustions.status != :draft', { draft: 'draft' });
-    console.log(filters?.status);
+
     if (filters?.status) {
-      
       query = query.andWhere('combustions.status = :status', { status: filters.status });
     }
 
@@ -34,7 +33,7 @@ export class CombustionRepository {
 
     if (filters?.formedAtTo) {
       query.andWhere('combustions.formed_at <= :formedAtTo', {
-        formedAtTo: filters.formedAtTo,
+        formedAtTo: `${filters.formedAtTo} 23:59:59`,
       });
     }
 

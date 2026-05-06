@@ -1,4 +1,5 @@
 // src/modules/combustions/dto/combustion-response.dto.ts
+
 export class CombustionListResponseDto {
   id: number;
   technicianName: string;
@@ -13,6 +14,16 @@ export class CombustionListResponseDto {
   resultsCount: number; // количество ненулевых результатов
 }
 
+export class CompoundInCombustionDto {
+  id: number;
+  title: string;
+  imageUrl: string | null;
+  specificH2oVolume: number
+  specificCo2Volume: number;
+  comment: string | null;
+  amount: number | null;
+}
+
 export class CombustionSingleResponseDto {
   id: number;
   technicianId: number;
@@ -24,15 +35,5 @@ export class CombustionSingleResponseDto {
   h2oVolume: number | null;
   co2Volume: number | null;
   sampleDescription: string | null;
-  compounds?: CompoundInCombustionDto[];
-}
-
-export class CompoundInCombustionDto {
-  id: number;
-  title: string;
-  imageUrl: string | null;
-  specificH2oVolume: number
-  specificCo2Volume: number;
-  comment: string | null;
-  amount: number | null;
+  compounds: CompoundInCombustionDto[];
 }

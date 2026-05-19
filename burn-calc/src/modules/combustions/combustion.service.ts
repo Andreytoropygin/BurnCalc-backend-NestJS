@@ -43,7 +43,7 @@ export class CombustionService {
 
     return combustions.map(c => {
       const resultsCount = c.compoundCombustions?.filter(
-        cc => cc.amount !== null && cc.amount !== undefined,
+        cc => cc.amount,
       ).length || 0;
 
       return {

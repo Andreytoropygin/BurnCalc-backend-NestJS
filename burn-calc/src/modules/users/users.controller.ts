@@ -28,7 +28,8 @@ export class UserController {
     const { sessionId, user } = await this.service.login(dto);
     res.cookie('sessionId', sessionId, {
       httpOnly: true,
-      secure: false,
+      secure: true,
+      sameSite: 'none',
       maxAge: 3600000,
     });
     return user;

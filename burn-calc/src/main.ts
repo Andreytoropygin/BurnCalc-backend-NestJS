@@ -8,9 +8,17 @@ import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import express from 'express';
+import cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use(cors({
+    origin: 'https://andreytoropygin.github.io', // Разрешаем доступ только вашему фронтенду
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],   // Укажите нужные методы, если требуется
+    credentials: true                            // Разрешить передачу cookie/headers (если нужно)
+  }));
   
   app.use(cookieParser());
 

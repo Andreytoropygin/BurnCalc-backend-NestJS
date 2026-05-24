@@ -8,16 +8,25 @@ import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import express from 'express';
 import cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use(cors({
-    origin: 'https://andreytoropygin.github.io', // Разрешаем доступ только вашему фронтенду
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],   // Укажите нужные методы, если требуется
-    credentials: true                            // Разрешить передачу cookie/headers (если нужно)
+    origin: [
+      'https://andreytoropygin.github.io',
+      'https://localhost:4173',
+      'http://localhost:4173',     // Ваш devUrl
+      'http://localhost:3000',
+      'http://localhost:8000',
+      'http://192.168.0.105:8000',
+      'tauri://localhost',         // КРИТИЧЕСКИ ВАЖНО для собранного AppImage/.deb на Linux
+      'https://tauri.localhost',   // На всякий случай для новых версий
+      'http://tauri.localhost'     // Для Windows
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
   }));
   
   app.use(cookieParser());
